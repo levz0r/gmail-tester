@@ -57,7 +57,7 @@ async function get_new_token(oAuth2Client) {
           reject(err);
         } else {
           oAuth2Client.setCredentials(token);
-          fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
+          fs.writeFileSync(path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token));
           resolve(oAuth2Client);
         }
       });
