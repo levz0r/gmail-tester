@@ -11,8 +11,9 @@ npm install --save-dev gmail-tester
 2. Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions below). 
 3. In terminal, run the following command:
 ```
-node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <target-email>
+node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <path-to-token.json> <target-email>
 ```
+`<path-to-token.json>` Is the path to OAuth2 token. If it doesn't exist, the script will create it.
 The script will prompt you to go to google.com to activate a token. Go to the given link, and select the account for `<target-email>`. Grand the permission to view your email messages and settings. In the end of the process you should see the token:
 <p align="center">
   <img src="https://i.ibb.co/sJm97H1/copy-token.png" alt="copy-token" border="0">
@@ -43,7 +44,8 @@ The `credentials.json` file should look like this:
 const path = require("path");
 const gmail = require("gmail-tester");
 const email = await gmail.check_inbox(
-    path.resolve(__dirname, "credentials.json"),  // Assuming credentials.json is in the same directory where the example is.
+    path.resolve(__dirname, "credentials.json"),  // Assuming credentials.json is in the current directory.
+    path.resolve(__dirname, "gmail_token.json"),  // Look for gmail_token.json in the current directory (if it doesn't exists, it will be created by the script).
     "Activate Your Account",                      // We are looking for 'Activate Your Account' in the subject of the message.
     "no-reply@domain.com",                        // We are looking for a sender header which has 'no-reply@domain.com' in it.
     "<target-email>",                             // Which inbox to poll. credentials.json should contain the credentials to it.
