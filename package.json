@@ -1,6 +1,6 @@
 {
     "name": "gmail-tester",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
     "main": "gmail-tester.js",
     "scripts": {},
@@ -13,7 +13,7 @@
         "polling"
     ],
     "author": "Lev Gelfenbuim",
-    "license": "ISC",
+    "license": "MIT",
     "dependencies": {
         "googleapis": "^37.2.0"
     },
