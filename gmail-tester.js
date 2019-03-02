@@ -5,6 +5,7 @@ const { google } = require("googleapis");
 const util = require("util");
 
 async function check_inbox(
+  credentials_json,
   subject,
   from,
   to,
@@ -17,7 +18,7 @@ async function check_inbox(
     );
     // Load client secrets from a local file.
     const content = fs.readFileSync(
-      path.resolve(__dirname, "credentials.json")
+      credentials_json
     );
     const oAuth2Client = await gmail.authorize(JSON.parse(content));
     const gmail_client = google.gmail({ version: "v1", oAuth2Client });
