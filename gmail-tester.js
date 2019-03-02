@@ -1,11 +1,11 @@
 const gmail = require("./gmail");
 const fs = require("fs");
-const path = require("path");
 const { google } = require("googleapis");
 const util = require("util");
 
 async function check_inbox(
   credentials_json,
+  token_path,
   subject,
   from,
   to,
@@ -20,7 +20,7 @@ async function check_inbox(
     const content = fs.readFileSync(
       credentials_json
     );
-    const oAuth2Client = await gmail.authorize(JSON.parse(content));
+    const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
     const gmail_client = google.gmail({ version: "v1", oAuth2Client });
     let found_email = null;
     let done_waiting_time = 0;

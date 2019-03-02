@@ -16,7 +16,7 @@ const TOKEN_PATH = "token.json";
  * given callback function.
  * @param {Object} credentials The authorization client credentials.
  */
-async function authorize(credentials) {
+async function authorize(credentials, token_path) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
@@ -25,11 +25,11 @@ async function authorize(credentials) {
   );
   // Check if we have previously stored a token.
   try {
-    const token = fs.readFileSync(path.resolve(__dirname, TOKEN_PATH));
+    const token = fs.readFileSync(token_path || path.resolve(__dirname, TOKEN_PATH));
     oAuth2Client.setCredentials(JSON.parse(token));
     return oAuth2Client;
   } catch (error) {
-    return await get_new_token(oAuth2Client);
+    return await get_new_token(oAuth2Client, token_path);
   }
 }
 
@@ -39,7 +39,7 @@ async function authorize(credentials) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @param {getEventsCallback} callback The callback for the authorized client.
  */
-async function get_new_token(oAuth2Client) {
+async function get_new_token(oAuth2Client, token_path) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES
@@ -57,7 +57,7 @@ async function get_new_token(oAuth2Client) {
           reject(err);
         } else {
           oAuth2Client.setCredentials(token);
-          fs.writeFileSync(path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token));
+          fs.writeFileSync(token_path || path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token));
           resolve(oAuth2Client);
         }
       });
