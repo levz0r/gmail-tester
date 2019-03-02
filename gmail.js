@@ -4,7 +4,6 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const util = require("util");
 
-
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
 // The file token.json stores the user's access and refresh tokens, and is
@@ -17,7 +16,7 @@ const TOKEN_PATH = "token.json";
  * given callback function.
  * @param {Object} credentials The authorization client credentials.
  */
-function authorize(credentials) {
+async function authorize(credentials) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
@@ -30,7 +29,7 @@ function authorize(credentials) {
     oAuth2Client.setCredentials(JSON.parse(token));
     return oAuth2Client;
   } catch (error) {
-    return get_new_token(oAuth2Client);
+    return await get_new_token(oAuth2Client);
   }
 }
 
@@ -40,7 +39,7 @@ function authorize(credentials) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @param {getEventsCallback} callback The callback for the authorized client.
  */
-function get_new_token(oAuth2Client) {
+async function get_new_token(oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES
@@ -50,20 +49,18 @@ function get_new_token(oAuth2Client) {
     input: process.stdin,
     output: process.stdout
   });
-  rl.question("Enter the code from that page here: ", async code => {
-    rl.close();
-    const getToken = util.promisify(oAuth2Client.getToken);
-    try {
-      const token = getToken(code);
-      oAuth2Client.setCredentials(token);
-      fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
-      return oAuth2Client;
-    } catch (err) {
-      if (err) return console.error("Error retrieving access token", err);
-    }
-
-    oAuth2Client.getToken(code, (err, token) => {
-      // Store the token to disk for later program executions
+  return new Promise((resolve, reject) => {
+    rl.question("Enter the code from that page here: ", async code => {
+      rl.close();
+      oAuth2Client.getToken(code, function(err, token) {
+        if (err) {
+          reject(err);
+        } else {
+          oAuth2Client.setCredentials(token);
+          fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
+          resolve(oAuth2Client);
+        }
+      });
     });
   });
 }
