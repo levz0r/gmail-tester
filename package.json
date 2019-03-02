@@ -1,6 +1,6 @@
 {
     "name": "gmail-tester",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
     "main": "gmail-tester.js",
     "scripts": {},
