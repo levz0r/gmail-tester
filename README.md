@@ -1,45 +1,64 @@
 # gmail-tester
-A simple NodeJS gmail client which checks the inbox for specific message existance.
-It works on any gmail-powered account (both private and company).
-`gmail-tester` is polling the mailbox for a given amount of time and either returns the desired message, or quits if the message is not found within the given time.
+
+A simple NodeJS gmail client which checks the inbox for specific message existance.<br/>
+It works on any gmail-powered account (both private and company).<br/>
+`gmail-tester` is polling the mailbox for a given amount of time and either returns the desired message, or quits if the message was not found within the given time.
 
 # Usage
-1. Install using `npm`: 
+
+1.  Install using `npm`:
+
 ```
 npm install --save-dev gmail-tester
 ```
-2. Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions below). 
-3. In terminal, run the following command:
+
+2.  Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions below).
+3.  In terminal, run the following command:
+
 ```
 node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <path-to-token.json> <target-email>
 ```
-`<path-to-token.json>` Is the path to OAuth2 token. If it doesn't exist, the script will create it.
-The script will prompt you to go to google.com to activate a token. Go to the given link, and select the account for `<target-email>`. Grand the permission to view your email messages and settings. In the end of the process you should see the token:
+
+`<path-to-credentials.json>` Is the path to OAuth2 Authentication file.<br/>
+`<path-to-token.json>` Is the path to OAuth2 token. If it doesn't exist, the script will create it.<br/>
+The script will prompt you to go to google.com to activate a token.
+Go to the given link, and select the account for `<target-email>`. Grant the permission to view your email messages and settings. In the end of the process you should see the token:
+
 <p align="center">
   <img src="https://i.ibb.co/sJm97H1/copy-token.png" alt="copy-token" border="0">
 </p>
 
 Hit the copy button and paste it to `init.js` script.
 The process should look like this:
+
 <p align="center">
-  <img src="https://i.ibb.co/HKSRp3k/run-script.png" alt="Run script">
+  <img src="https://i.ibb.co/k94bkzB/run-script.png" alt="Run script">
 </p>
 
 # How to get credentials.json?
-1. Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret).
-2. Once done, go to [https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId](https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId) and download the OAuth2 credentials file, like shown in the image below. Make sure to replace `(project-name)` with your project name.
-<p align="center">
-  <img src="https://i.ibb.co/z5FL6YK/get-credentials-json.png" alt="Get credentials.json">
-</p>
+
+1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret).
+2.  Once done, go to [https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId](<https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId>) and download the OAuth2 credentials file, like shown in the image below. Make sure to replace `(project-name)` with your project name.
+    <p align="center">
+      <img src="https://i.ibb.co/z5FL6YK/get-credentials-json.png" alt="Get credentials.json">
+    </p>
 
 The `credentials.json` file should look like this:
+
 <p align="center">
   <img src="https://i.ibb.co/1stgn28/credentials.png" alt="Credentials file">
 </p>
 
-3. Congratulations! `gmail-tester` is ready to use.
+If everything done right, the last output from the script should be
+
+> [gmail] Found!
+
+3.  Congratulations! `gmail-tester` is ready to use.
 
 # Example
+
+## Check email for a message:
+
 ```javascript
 const path = require("path");
 const gmail = require("gmail-tester");
