@@ -25,7 +25,9 @@ async function authorize(credentials, token_path) {
   );
   // Check if we have previously stored a token.
   try {
-    const token = fs.readFileSync(token_path || path.resolve(__dirname, TOKEN_PATH));
+    const token = fs.readFileSync(
+      token_path || path.resolve(__dirname, TOKEN_PATH)
+    );
     oAuth2Client.setCredentials(JSON.parse(token));
     return oAuth2Client;
   } catch (error) {
@@ -57,7 +59,10 @@ async function get_new_token(oAuth2Client, token_path) {
           reject(err);
         } else {
           oAuth2Client.setCredentials(token);
-          fs.writeFileSync(token_path || path.resolve(__dirname, TOKEN_PATH), JSON.stringify(token));
+          fs.writeFileSync(
+            token_path || path.resolve(__dirname, TOKEN_PATH),
+            JSON.stringify(token)
+          );
           resolve(oAuth2Client);
         }
       });
@@ -133,7 +138,12 @@ async function get_recent_email(gmail, oauth2Client) {
     const messages_get = util.promisify(gmail.users.messages.get);
     for (let message of messages) {
       promises.push(
-        messages_get({ auth: oauth2Client, userId: "me", id: message.id })
+        messages_get({
+          auth: oauth2Client,
+          userId: "me",
+          id: message.id,
+          format: "full"
+        })
       );
     }
     const results = await Promise.all(promises);
