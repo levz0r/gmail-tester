@@ -6,7 +6,7 @@ A simple Node.js Gmail client which checks/returns email message(s) straight fro
 There are two main functionalities this library provides:<br>
 
 1.  `check_inbox()`: Polls a mailbox for a given amount of time. At the end of the operation, the desired message is returned (if found).
-2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example below).
+2.  `get_messages()`: Can be used to perform various assertions on the email objects (see example [below](https://github.com/levz0r/gmail-tester/blob/master/README.md#using-get_messages-to-assert-email-body-using-cypress)).
 
 P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inbox-in-cypress-io-a4286cfdb888) on medium, how using [Cypress](https://cypress.io), we are testing our user registration process at Tastewise.
 
@@ -18,7 +18,7 @@ P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inb
 npm install --save-dev gmail-tester
 ```
 
-2.  Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions below).
+2.  Save the Google Cloud Platform OAuth2 Authentication file named `credentials.json` inside an accessible directory (see instructions [below](https://github.com/levz0r/gmail-tester/blob/master/README.md#how-to-get-credentialsjson)).
 3.  In terminal, run the following command:
 
 ```
