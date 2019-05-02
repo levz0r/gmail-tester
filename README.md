@@ -1,6 +1,6 @@
 # gmail-tester
 
-[![npm version](https://badge.fury.io/js/gmail-tester.svg)](https://badge.fury.io/js/gmail-tester)
+[![npm version](https://badge.fury.io/js/gmail-tester.svg)](https://www.npmjs.com/package/gmail-tester)
 
 A simple Node.js Gmail client which checks/returns email message(s) straight from any Gmail-powered account (both private and company).<br/>
 There are two main functionalities this library provides:<br>
