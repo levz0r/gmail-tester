@@ -1,5 +1,7 @@
 # gmail-tester
 
+[![npm version](https://badge.fury.io/js/gmail-tester.svg)](https://badge.fury.io/js/gmail-tester)
+
 A simple Node.js Gmail client which checks/returns email message(s) straight from any Gmail-powered account (both private and company).<br/>
 There are two main functionalities this library provides:<br>
 
@@ -111,7 +113,7 @@ if (email) {
 
 ## Using `get_messages()` to assert email body using Cypress
 
-_examples\cypress\plugins\index.js:_
+_[examples\cypress\plugins\index.js](https://github.com/levz0r/gmail-tester/blob/master/examples/cypress/plugins/index.js):_
 
 ```javascript
 /// <reference types="Cypress" />
@@ -139,7 +141,7 @@ module.exports = (on, config) => {
 };
 ```
 
-_examples\cypress\integration\gmail.spec.js:_
+_[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-tester/blob/master/examples/cypress/integration/gmail.spec.js):_
 
 ```javascript
 /// <reference types="Cypress" />
@@ -170,3 +172,9 @@ describe("Email assertion:", () => {
   });
 });
 ```
+# Contributing
+Please feel free to contribute to this project.
+
+# Credits
+
+* Built using [googleapis](https://github.com/googleapis/googleapis).
