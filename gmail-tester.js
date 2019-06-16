@@ -3,7 +3,7 @@ const fs = require("fs");
 const { google } = require("googleapis");
 const util = require("util");
 
-function get_header(name, headers) {
+function _get_header(name, headers) {
   const found = headers.find(h => h.name === name)
   return found && found.value
 }
@@ -17,9 +17,9 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
   const gmail_emails = await gmail.get_recent_email(gmail_client, oAuth2Client);
   for (const gmail_email of gmail_emails) {
     const email = {
-      from: get_header("From", gmail_email.payload.headers),
-      subject: get_header("Subject", gmail_email.payload.headers),
-      receiver: get_header("Delivered-To", gmail_email.payload.headers)
+      from: _get_header("From", gmail_email.payload.headers),
+      subject: _get_header("Subject", gmail_email.payload.headers),
+      receiver: _get_header("Delivered-To", gmail_email.payload.headers)
     };
     if (options.include_body) {
       let email_body = { html: "", text: "" };
