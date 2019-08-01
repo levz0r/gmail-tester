@@ -30,7 +30,7 @@ node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <path-to-tok
 `<path-to-credentials.json>` Is the path to OAuth2 Authentication file.<br/>
 `<path-to-token.json>` Is the path to OAuth2 token. If it doesn't exist, the script will create it.<br/>
 The script will prompt you to go to google.com to activate a token.
-Go to the given link, and select the account for `<target-email>`. Grant permission to view your email messages and settings. In the end of the process you should see the token:
+Go to the given link, and select the account for `<target-email>`. Grant permission to view your email messages and settings. At the end of the process you should see the token:
 
 <p align="center">
   <img src="https://i.ibb.co/sJm97H1/copy-token.png" alt="copy-token" border="0">
@@ -67,9 +67,14 @@ If everything is done right, the last output from the script should be
 
 ### `get_messages(credentials_json, token_path, options)`
 
-`credentials_json`: Path to credentials json file.<br>
+`credentials_json`: Path to credentials JSON file.<br>
 `token_path`: Path to OAuth2 token file.<br>
-`options`: Currently supports `include_body` field. Set to `true` to fetch decoded email bodies.<br>
+`options`: <br>
+
+* `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+* `before`: Date. Filter messages received _after_ the specified date.
+* `after`: Date. Filter messages received _before_ the specified date.
+
 **Returns:**
 An array of `email` objects with the following fields:<br>
 
@@ -151,30 +156,36 @@ _[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-te
 describe("Email assertion:", () => {
   it("Look for an email with specific subject and link in email body", function() {
     // debugger; //Uncomment for debugger to work...
-    cy.task("gmail:get-messages", {
-      options: {
-        include_body: true
-      }
-    }).then(emails => {
-      const found_email = emails.find(email => {
-        return (
-          email.from.indexOf("AccountSupport@ubi.com") >= 0 &&
-          email.subject.indexOf("Ubisoft Password Change Request") >= 0
+    cy
+      .task("gmail:get-messages", {
+        options: {
+          include_body: true,
+          before: new Date(2019, 8, 1),
+          after: new Date(2019, 3, 29)
+        }
+      })
+      .then(emails => {
+        const found_email = emails.find(email => {
+          return (
+            email.from.indexOf("AccountSupport@ubi.com") >= 0 &&
+            email.subject.indexOf("Ubisoft Password Change Request") >= 0
+          );
+        });
+        assert.isNotNull(found_email, "Found email!");
+        const body = found_email.body.html;
+        assert.isTrue(
+          body.indexOf(
+            "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
+          ) >= 0,
+          "Found reset link!"
         );
       });
-      assert.isNotNull(found_email, "Found email!");
-      const body = found_email.body.html;
-      assert.isTrue(
-        body.indexOf(
-          "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
-        ) >= 0,
-        "Found reset link!"
-      );
-    });
   });
 });
 ```
+
 # Contributing
+
 Please feel free to contribute to this project.
 
 # Credits

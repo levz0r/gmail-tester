@@ -4,17 +4,36 @@ const { google } = require("googleapis");
 const util = require("util");
 
 function _get_header(name, headers) {
-  const found = headers.find(h => h.name === name)
-  return found && found.value
+  const found = headers.find(h => h.name === name);
+  return found && found.value;
+}
+
+function _init_query(options) {
+  const { before, after } = options;
+  let query = "";
+  if (before) {
+    query += `before:${before.getFullYear()}/${before.getMonth()}/${before.getDate()} `;
+  }
+  if (after) {
+    query += `after:${after.getFullYear()}/${after.getMonth()}/${after.getDate()} `;
+  }
+  query = query.trim();
+  return query;
 }
 
 async function _get_recent_email(credentials_json, token_path, options = {}) {
   const emails = [];
+
+  const query = _init_query(options);
   // Load client secrets from a local file.
   const content = fs.readFileSync(credentials_json);
   const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
   const gmail_client = google.gmail({ version: "v1", oAuth2Client });
-  const gmail_emails = await gmail.get_recent_email(gmail_client, oAuth2Client);
+  const gmail_emails = await gmail.get_recent_email(
+    gmail_client,
+    oAuth2Client,
+    query
+  );
   for (const gmail_email of gmail_emails) {
     const email = {
       from: _get_header("From", gmail_email.payload.headers),

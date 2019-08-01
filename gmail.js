@@ -105,7 +105,7 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
     auth: oauth2Client,
     labelIds: labelIds
   });
-  let result = resp.data.messages;
+  let result = resp.data.messages || [];
   while (resp.nextPageToken) {
     const resp = await list({
       userId: "me",
@@ -123,15 +123,16 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
  * Get the recent email from your Gmail account
  *
  * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
+ * @param {String} query String used to filter the Messages listed.
  */
-async function get_recent_email(gmail, oauth2Client) {
+async function get_recent_email(gmail, oauth2Client, query = "") {
   try {
     const labels = await list_labels(gmail, oauth2Client);
     const inbox_label_id = [labels.find(l => l.name === "INBOX").id];
     const messages = await list_messages(
       gmail,
       oauth2Client,
-      "",
+      query,
       inbox_label_id
     );
     let promises = [];
