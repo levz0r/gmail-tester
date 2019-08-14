@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
 const { google } = require("googleapis");
-const util = require("util");
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
@@ -76,13 +75,23 @@ async function get_new_token(oAuth2Client, token_path) {
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
 async function list_labels(gmail, oauth2Client) {
-  const list = util.promisify(gmail.users.labels.list);
   try {
-    const res = await list({
-      userId: "me",
-      auth: oauth2Client
+    const labels = await new Promise((resolve, reject) => {
+      gmail.users.labels.list(
+        {
+          userId: "me",
+          auth: oauth2Client
+        },
+        function(err, res) {
+          if (err) {
+            reject(err);
+          } else {
+            const labels = res.data.labels;
+            resolve(labels);
+          }
+        }
+      );
     });
-    const labels = res.data.labels;
     return labels;
   } catch (err) {
     console.log("The API returned an error: " + err);
@@ -98,24 +107,48 @@ async function list_labels(gmail, oauth2Client) {
  * @param  {String} query String used to filter the Messages listed.
  */
 async function list_messages(gmail, oauth2Client, query, labelIds) {
-  const list = util.promisify(gmail.users.messages.list);
-  const resp = await list({
-    userId: "me",
-    q: query,
-    auth: oauth2Client,
-    labelIds: labelIds
+  const messages = await new Promise((resolve, reject) => {
+    gmail.users.messages.list(
+      {
+        userId: "me",
+        q: query,
+        auth: oauth2Client,
+        labelIds: labelIds
+      },
+      async function(err, res) {
+        if (err) {
+          reject(err);
+        } else {
+          let result = res.data.messages || [];
+          let { nextPageToken } = res.data;
+          while (nextPageToken) {
+            const resp = await new Promise((resolve, reject) => {
+              gmail.users.messages.list(
+                {
+                  userId: "me",
+                  q: query,
+                  auth: oauth2Client,
+                  labelIds: labelIds,
+                  pageToken: nextPageToken
+                },
+                function(err, res) {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(res);
+                  }
+                }
+              );
+            });
+            result = result.concat(resp.data.messages);
+            nextPageToken = resp.data.nextPageToken;
+          }
+          resolve(result);
+        }
+      }
+    );
   });
-  let result = resp.data.messages || [];
-  while (resp.nextPageToken) {
-    const resp = await list({
-      userId: "me",
-      q: query,
-      auth: oauth2Client,
-      labelIds: labelIds,
-      pageToken: nextPageToken
-    });
-    result = result.concat(resp.data.messages);
-  }
+  let result = messages || [];
   return result;
 }
 
@@ -136,14 +169,24 @@ async function get_recent_email(gmail, oauth2Client, query = "") {
       inbox_label_id
     );
     let promises = [];
-    const messages_get = util.promisify(gmail.users.messages.get);
     for (let message of messages) {
       promises.push(
-        messages_get({
-          auth: oauth2Client,
-          userId: "me",
-          id: message.id,
-          format: "full"
+        new Promise((resolve, reject) => {
+          gmail.users.messages.get(
+            {
+              auth: oauth2Client,
+              userId: "me",
+              id: message.id,
+              format: "full"
+            },
+            function(err, res) {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(res);
+              }
+            }
+          );
         })
       );
     }
