@@ -9,13 +9,21 @@ function _get_header(name, headers) {
 }
 
 function _init_query(options) {
-  const { before, after } = options;
+  const {from, subject, before, after } = options;
   let query = "";
-  if (before) {
-    query += `before:${before.getFullYear()}/${before.getMonth()}/${before.getDate()} `;
+  if (from) {
+    query += `from:(${from})`;
+  }
+  if (subject) {
+    query += `subject:(${subject})`;
   }
   if (after) {
-    query += `after:${after.getFullYear()}/${after.getMonth()}/${after.getDate()} `;
+    var afterEpoch = Math.round(new Date(after).getTime()/1000)
+    query += `after:${afterEpoch}`;
+  }
+  if (before) {
+    var beforeEpoch = Math.round(new Date(before).getTime()/1000)
+    query += `before:${beforeEpoch}`;
   }
   query = query.trim();
   return query;

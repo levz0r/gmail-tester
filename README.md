@@ -71,6 +71,9 @@ If everything is done right, the last output from the script should be
 `token_path`: Path to OAuth2 token file.<br>
 `options`: <br>
 
+* `from`: String. Filter on the email address of the receiver.
+* `to`: String. Filter on the email address of the sender.
+* `subject`: String. Filter on the subject of the email.
 * `include_body`: boolean. Set to `true` to fetch decoded email bodies.
 * `before`: Date. Filter messages received _after_ the specified date.
 * `after`: Date. Filter messages received _before_ the specified date.
@@ -159,20 +162,16 @@ describe("Email assertion:", () => {
     cy
       .task("gmail:get-messages", {
         options: {
+          from: "AccountSupport@ubi.com",
+          subject: "Ubisoft Password Change Request",
           include_body: true,
           before: new Date(2019, 8, 1),
           after: new Date(2019, 3, 29)
         }
       })
       .then(emails => {
-        const found_email = emails.find(email => {
-          return (
-            email.from.indexOf("AccountSupport@ubi.com") >= 0 &&
-            email.subject.indexOf("Ubisoft Password Change Request") >= 0
-          );
-        });
-        assert.isNotNull(found_email, "Found email!");
-        const body = found_email.body.html;
+        expect(emails[0].from).to.exist
+        const body = emails[0].body.html;
         assert.isTrue(
           body.indexOf(
             "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
