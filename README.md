@@ -165,10 +165,8 @@ describe("Email assertion:", () => {
           from: "AccountSupport@ubi.com",
           subject: "Ubisoft Password Change Request",
           include_body: true,
-          before: Cypress.moment().toDate(), // Using moments to determine current date and time
-          after: new Date(2019, 8, 23) // Before September 23rd, 2019
-          // Extra precision for the dates can be achieved by adding hours,
-          // hours and minutes or hours, minutes and seconds
+          before: new Date (2019, 8, 24, 12, 31, 13) // Before September 24rd, 2019 12:31:13
+          after: new Date(2019, 7, 23)  // After August 23, 2019
         }
       })
       .then(emails => {
