@@ -12,7 +12,7 @@ function _init_query(options) {
   const {to, from, subject, before, after } = options;
   let query = "";
   if (to) {
-    query += `to:(${from})`;
+    query += `to:(${to})`;
   }
   if (from) {
     query += `from:(${from})`;
