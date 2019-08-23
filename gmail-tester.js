@@ -9,8 +9,11 @@ function _get_header(name, headers) {
 }
 
 function _init_query(options) {
-  const {from, subject, before, after } = options;
+  const {to, from, subject, before, after } = options;
   let query = "";
+  if (to) {
+    query += `to:(${from})`;
+  }
   if (from) {
     query += `from:(${from})`;
   }
@@ -28,6 +31,7 @@ function _init_query(options) {
   query = query.trim();
   return query;
 }
+
 
 async function _get_recent_email(credentials_json, token_path, options = {}) {
   const emails = [];
