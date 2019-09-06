@@ -86,7 +86,8 @@ async function check_inbox(
   from,
   to,
   wait_time_sec = 30,
-  max_wait_time_sec = 60
+  max_wait_time_sec = 60,
+  options
 ) {
   try {
     console.log(
@@ -96,7 +97,7 @@ async function check_inbox(
     let found_email = null;
     let done_waiting_time = 0;
     do {
-      const emails = await _get_recent_email(credentials_json, token_path);
+      const emails = await _get_recent_email(credentials_json, token_path, options);
       for (let email of emails) {
         if (
           email.receiver === to &&
