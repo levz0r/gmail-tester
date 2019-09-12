@@ -165,7 +165,7 @@ describe("Email assertion:", () => {
           from: "AccountSupport@ubi.com",
           subject: "Ubisoft Password Change Request",
           include_body: true,
-          before: new Date (2019, 8, 24, 12, 31, 13) // Before September 24rd, 2019 12:31:13
+          before: new Date (2019, 8, 24, 12, 31, 13), // Before September 24rd, 2019 12:31:13
           after: new Date(2019, 7, 23)  // After August 23, 2019
         }
       })

@@ -9,8 +9,8 @@ function _get_header(name, headers) {
 }
 
 function _init_query(options) {
-  const {to, from, subject, before, after } = options;
-  let query = "";
+  const { to, from, subject, before, after } = options;
+  const query = "";
   if (to) {
     query += `to:(${to})`;
   }
@@ -21,17 +21,16 @@ function _init_query(options) {
     query += `subject:(${subject})`;
   }
   if (after) {
-    var afterEpoch = Math.round(new Date(after).getTime()/1000)
-    query += `after:${afterEpoch}`;
+    const after_epoch = Math.round(new Date(after).getTime() / 1000)
+    query += `after:${after_epoch}`;
   }
   if (before) {
-    var beforeEpoch = Math.round(new Date(before).getTime()/1000)
-    query += `before:${beforeEpoch}`;
+    const before_epoch = Math.round(new Date(before).getTime() / 1000)
+    query += `before:${before_epoch}`;
   }
   query = query.trim();
   return query;
 }
-
 
 async function _get_recent_email(credentials_json, token_path, options = {}) {
   const emails = [];
