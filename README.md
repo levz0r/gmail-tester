@@ -110,6 +110,8 @@ const email = await gmail.check_inbox(
   "<target-email>", // Which inbox to poll. credentials.json should contain the credentials to it.
   10, // Poll interval (in seconds).
   30 // Maximum poll time (in seconds), after which we'll giveup.
+  { include_body: true } // If we want to include the body of messages (optional)
+  ]
 );
 if (email) {
   console.log("Email was found!");
