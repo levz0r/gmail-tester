@@ -71,9 +71,9 @@ If everything is done right, the last output from the script should be
 `token_path`: Path to OAuth2 token file.<br>
 `options`: <br>
 
-* `include_body`: boolean. Set to `true` to fetch decoded email bodies.
-* `before`: Date. Filter messages received _after_ the specified date.
-* `after`: Date. Filter messages received _before_ the specified date.
+- `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+- `before`: Date. Filter messages received _after_ the specified date.
+- `after`: Date. Filter messages received _before_ the specified date.
 
 **Returns:**
 An array of `email` objects with the following fields:<br>
@@ -94,6 +94,39 @@ An array of `email` objects with the following fields:<br>
 ```
 
 _Some senders will send you `text/html` content, the others will send you `plain/text`, and some will send you both. Make sure you are looking for the content in the right body field._
+
+### `check_inbox(credentials_json, token_path, subject, from, to, wait_time_sec = 30, max_wait_time_sec = 60, options = {})`
+
+`credentials_json`: Path to credentials JSON file.<br>
+`token_path`: Path to OAuth2 token file.<br>
+`subject`: Subject to look for. Exact match.<br>
+`from`: Sender email to look for. Exact match.<br>
+`to`: Receiver's email. Exact match.<br>
+`wait_time_sec`: Interval between inbox checks (in seconds). _Default: 30 seconds_.<br>
+`max_wait_time_sec`: Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.<br>
+`options`: <br>
+
+- `include_body`: boolean. Set to `true` to fetch decoded email bodies. _Default: false_.
+
+**Returns:**
+An array of `email` objects with the following fields:<br>
+
+```javascript
+[
+  {
+    from: "Human Friendly Name <sender@email-address>",
+    receiver: "your@email-address",
+    subject: "string",
+    body: {
+      html: "string",
+      text: "string"
+    }
+  }
+  // ...
+];
+```
+
+In addition, verbose messages will be written to console.
 
 # Example
 
@@ -158,30 +191,28 @@ _[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-te
 describe("Email assertion:", () => {
   it("Look for an email with specific subject and link in email body", function() {
     // debugger; //Uncomment for debugger to work...
-    cy
-      .task("gmail:get-messages", {
-        options: {
-          include_body: true,
-          before: new Date(2019, 8, 1),
-          after: new Date(2019, 3, 29)
-        }
-      })
-      .then(emails => {
-        const found_email = emails.find(email => {
-          return (
-            email.from.indexOf("AccountSupport@ubi.com") >= 0 &&
-            email.subject.indexOf("Ubisoft Password Change Request") >= 0
-          );
-        });
-        assert.isNotNull(found_email, "Found email!");
-        const body = found_email.body.html;
-        assert.isTrue(
-          body.indexOf(
-            "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
-          ) >= 0,
-          "Found reset link!"
+    cy.task("gmail:get-messages", {
+      options: {
+        include_body: true,
+        before: new Date(2019, 8, 1),
+        after: new Date(2019, 3, 29)
+      }
+    }).then(emails => {
+      const found_email = emails.find(email => {
+        return (
+          email.from.indexOf("AccountSupport@ubi.com") >= 0 &&
+          email.subject.indexOf("Ubisoft Password Change Request") >= 0
         );
       });
+      assert.isNotNull(found_email, "Found email!");
+      const body = found_email.body.html;
+      assert.isTrue(
+        body.indexOf(
+          "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
+        ) >= 0,
+        "Found reset link!"
+      );
+    });
   });
 });
 ```
@@ -192,4 +223,4 @@ Please feel free to contribute to this project.
 
 # Credits
 
-* Built using [googleapis](https://github.com/googleapis/googleapis).
+- Built using [googleapis](https://github.com/googleapis/googleapis).

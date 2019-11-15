@@ -41,7 +41,10 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
       receiver: _get_header("Delivered-To", gmail_email.payload.headers)
     };
     if (options.include_body) {
-      let email_body = { html: "", text: "" };
+      let email_body = {
+        html: "",
+        text: ""
+      };
       const { body } = gmail_email.payload;
       if (body.size) {
         switch (gmail_email.payload.mimeType) {
@@ -87,7 +90,7 @@ async function check_inbox(
   to,
   wait_time_sec = 30,
   max_wait_time_sec = 60,
-  options
+  options = {}
 ) {
   try {
     console.log(
@@ -97,7 +100,11 @@ async function check_inbox(
     let found_email = null;
     let done_waiting_time = 0;
     do {
-      const emails = await _get_recent_email(credentials_json, token_path, options);
+      const emails = await _get_recent_email(
+        credentials_json,
+        token_path,
+        options
+      );
       for (let email of emails) {
         if (
           email.receiver === to &&
@@ -148,4 +155,7 @@ async function get_messages(credentials_json, token_path, options) {
   }
 }
 
-module.exports = { check_inbox, get_messages };
+module.exports = {
+  check_inbox,
+  get_messages
+};
