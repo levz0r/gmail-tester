@@ -9,13 +9,24 @@ function _get_header(name, headers) {
 }
 
 function _init_query(options) {
-  const { before, after } = options;
+  const { to, from, subject, before, after } = options;
   let query = "";
-  if (before) {
-    query += `before:${before.getFullYear()}/${before.getMonth()}/${before.getDate()} `;
+  if (to) {
+    query += `to:"${to}" `;
+  }
+  if (from) {
+    query += `from:"${from}" `;
+  }
+  if (subject) {
+    query += `subject:(${subject}) `;
   }
   if (after) {
-    query += `after:${after.getFullYear()}/${after.getMonth()}/${after.getDate()} `;
+    const after_epoch = Math.round(new Date(after).getTime() / 1000);
+    query += `after:${after_epoch} `;
+  }
+  if (before) {
+    const before_epoch = Math.round(new Date(before).getTime() / 1000);
+    query += `before:${before_epoch} `;
   }
   query = query.trim();
   return query;
@@ -38,7 +49,8 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
     const email = {
       from: _get_header("From", gmail_email.payload.headers),
       subject: _get_header("Subject", gmail_email.payload.headers),
-      receiver: _get_header("Delivered-To", gmail_email.payload.headers)
+      receiver: _get_header("Delivered-To", gmail_email.payload.headers),
+      date: new Date(+gmail_email["internalDate"])
     };
     if (options.include_body) {
       let email_body = {
