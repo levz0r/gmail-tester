@@ -71,12 +71,12 @@ If everything is done right, the last output from the script should be
 `token_path`: Path to OAuth2 token file.<br>
 `options`: <br>
 
-- `from`: String. Filter on the email address of the receiver.
-- `to`: String. Filter on the email address of the sender.
-- `subject`: String. Filter on the subject of the email.
-- `include_body`: boolean. Set to `true` to fetch decoded email bodies.
-- `before`: Date. Filter messages received _after_ the specified date.
-- `after`: Date. Filter messages received _before_ the specified date.
+* `from`: String. Filter on the email address of the receiver.
+* `to`: String. Filter on the email address of the sender.
+* `subject`: String. Filter on the subject of the email.
+* `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+* `before`: Date. Filter messages received _after_ the specified date.
+* `after`: Date. Filter messages received _before_ the specified date.
 
 **Returns:**
 An array of `email` objects with the following fields:<br>
@@ -109,7 +109,7 @@ _Some senders will send you `text/html` content, the others will send you `plain
 `max_wait_time_sec`: Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.<br>
 `options`: <br>
 
-- `include_body`: boolean. Set to `true` to fetch decoded email bodies. _Default: false_.
+* `include_body`: boolean. Set to `true` to fetch decoded email bodies. _Default: false_.
 
 **Returns:**
 An array of `email` objects with the following fields:<br>
@@ -142,12 +142,11 @@ const email = await gmail.check_inbox(
   path.resolve(__dirname, "credentials.json"), // Assuming credentials.json is in the current directory.
   path.resolve(__dirname, "gmail_token.json"), // Look for gmail_token.json in the current directory (if it doesn't exists, it will be created by the script).
   "Activate Your Account", // We are looking for 'Activate Your Account' in the subject of the message.
-  "no-reply@domain.com", // We are looking for a sender header which has 'no-reply@domain.com' in it.
+  "no-reply@domain.com", // We are looking for a sender header which is 'no-reply@domain.com'.
   "<target-email>", // Which inbox to poll. credentials.json should contain the credentials to it.
   10, // Poll interval (in seconds).
-  30 // Maximum poll time (in seconds), after which we'll giveup.
+  30, // Maximum poll time (in seconds), after which we'll giveup.
   { include_body: true } // If we want to include the body of messages (optional)
-  ]
 );
 if (email) {
   console.log("Email was found!");
@@ -194,28 +193,30 @@ _[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-te
 describe("Email assertion:", () => {
   it("Look for an email with specific subject and link in email body", function() {
     // debugger; //Uncomment for debugger to work...
-    cy.task("gmail:get-messages", {
-      options: {
-        from: "AccountSupport@ubi.com",
-        subject: "Ubisoft Password Change Request",
-        include_body: true,
-        before: new Date(2019, 8, 24, 12, 31, 13), // Before September 24rd, 2019 12:31:13
-        after: new Date(2019, 7, 23) // After August 23, 2019
-      }
-    }).then(emails => {
-      assert.isAtLeast(
-        emails.length,
-        1,
-        "Expected to find at least one email, but none were found!"
-      );
-      const body = emails[0].body.html;
-      assert.isTrue(
-        body.indexOf(
-          "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
-        ) >= 0,
-        "Found reset link!"
-      );
-    });
+    cy
+      .task("gmail:get-messages", {
+        options: {
+          from: "AccountSupport@ubi.com",
+          subject: "Ubisoft Password Change Request",
+          include_body: true,
+          before: new Date(2019, 8, 24, 12, 31, 13), // Before September 24rd, 2019 12:31:13
+          after: new Date(2019, 7, 23) // After August 23, 2019
+        }
+      })
+      .then(emails => {
+        assert.isAtLeast(
+          emails.length,
+          1,
+          "Expected to find at least one email, but none were found!"
+        );
+        const body = emails[0].body.html;
+        assert.isTrue(
+          body.indexOf(
+            "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
+          ) >= 0,
+          "Found reset link!"
+        );
+      });
   });
 });
 ```
@@ -226,4 +227,4 @@ Please feel free to contribute to this project.
 
 # Credits
 
-- Built using [googleapis](https://github.com/googleapis/googleapis).
+* Built using [googleapis](https://github.com/googleapis/googleapis).
