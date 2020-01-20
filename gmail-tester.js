@@ -143,6 +143,7 @@ async function check_inbox(
     return found_email;
   } catch (err) {
     console.log("[gmail] Error:", err);
+    throw err;
   }
 }
 
