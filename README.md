@@ -98,18 +98,20 @@ An array of `email` objects with the following fields:<br>
 
 _Some senders will send you `text/html` content, the others will send you `plain/text`, and some will send you both. Make sure you are looking for the content in the right body field._
 
-### `check_inbox(credentials_json, token_path, subject, from, to, wait_time_sec = 30, max_wait_time_sec = 60, options = {})`
+### `check_inbox(credentials_json, token_path, options = {})`
 
 `credentials_json`: Path to credentials JSON file.<br>
 `token_path`: Path to OAuth2 token file.<br>
-`subject`: Subject to look for. Exact match.<br>
-`from`: Sender email to look for. Exact match.<br>
-`to`: Receiver's email. Exact match.<br>
-`wait_time_sec`: Interval between inbox checks (in seconds). _Default: 30 seconds_.<br>
-`max_wait_time_sec`: Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.<br>
 `options`: <br>
 
-* `include_body`: boolean. Set to `true` to fetch decoded email bodies. _Default: false_.
+* `from`: String. Filter on the email address of the receiver.
+* `to`: String. Filter on the email address of the sender.
+* `subject`: String. Filter on the subject of the email.
+* `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+* `before`: Date. Filter messages received _after_ the specified date.
+* `after`: Date. Filter messages received _before_ the specified date.
+* `wait_time_sec`: Integer. Interval between inbox checks (in seconds). _Default: 30 seconds_.
+* `max_wait_time_sec`: Integer. Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.
 
 **Returns:**
 An array of `email` objects with the following fields:<br>
