@@ -135,6 +135,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
     return found_email;
   } catch (err) {
     console.log("[gmail] Error:", err);
+    throw err;
   }
 }
 
