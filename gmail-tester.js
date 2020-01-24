@@ -94,16 +94,8 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
   return emails;
 }
 
-async function check_inbox(
-  credentials_json,
-  token_path,
-  subject,
-  from,
-  to,
-  wait_time_sec = 30,
-  max_wait_time_sec = 60,
-  options = {}
-) {
+async function __check_inbox(credentials_json, token_path, options = {}) {
+  const { subject, from, to, wait_time_sec, max_wait_time_sec } = options;
   try {
     console.log(
       `[gmail] Checking for message from '${from}', to: ${to}, contains '${subject}' in subject...`
@@ -144,6 +136,26 @@ async function check_inbox(
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
+}
+
+async function check_inbox(
+  credentials_json,
+  token_path,
+  options = {
+    subject: undefined,
+    from: undefined,
+    to: undefined,
+    wait_time_sec: 30,
+    max_wait_time_sec: 30
+  }
+) {
+  if (typeof options === "string") {
+    console.error(
+      "This functionality is absolete! Please pass all filter params using options object!"
+    );
+    process.exit(1);
+  }
+  return __check_inbox(credentials_json, token_path, options);
 }
 
 /**
