@@ -69,21 +69,19 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
             break;
         }
       } else {
-        let body_part = gmail_email.payload.parts.find(
-          p => p.mimeType === "text/html"
-        );
-        if (body_part) {
-          email_body.html = Buffer.from(body_part.body.data, "base64").toString(
-            "utf8"
-          );
-        }
-        body_part = gmail_email.payload.parts.find(
-          p => p.mimeType === "text/plain"
-        );
-        if (body_part) {
-          email_body.text = Buffer.from(body_part.body.data, "base64").toString(
-            "utf8"
-          );
+        let { parts } = gmail_email.payload;
+        while (parts.length) {
+          let part = parts.shift()
+
+          if (part.parts)
+            parts = parts.concat(part.parts)
+
+          if (part.mimeType === 'text/plain')
+          email_body.text = Buffer.from(part.body.data, "base64").toString("utf8")
+
+          if (part.mimeType === 'text/html')
+          email_body.html = Buffer.from(part.body.data, "base64").toString("utf8")
+
         }
       }
 
