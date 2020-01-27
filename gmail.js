@@ -194,7 +194,7 @@ async function get_recent_email(gmail, oauth2Client, query = "") {
     return results.map(r => r.data);
   } catch (error) {
     console.log("Error when getting recent emails: " + error);
-    throw err;
+    throw error;
   }
 }
 
