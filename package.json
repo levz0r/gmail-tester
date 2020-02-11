@@ -1,21 +1,21 @@
 {
-    "name": "gmail-tester",
-    "version": "1.2.0",
-    "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
-    "main": "gmail-tester.js",
-    "scripts": {},
-    "keywords": [
-        "gmail",
-        "googleapis",
-        "email",
-        "client",
-        "automation",
-        "polling"
-    ],
-    "author": "Lev Gelfenbuim",
-    "license": "MIT",
-    "dependencies": {
-        "googleapis": "^47.0.0"
-    },
-    "homepage": "https://github.com/levz0r/gmail-tester"
+  "name": "gmail-tester",
+  "version": "1.2.2",
+  "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
+  "main": "gmail-tester.js",
+  "scripts": {},
+  "keywords": [
+    "gmail",
+    "googleapis",
+    "email",
+    "client",
+    "automation",
+    "polling"
+  ],
+  "author": "Lev Gelfenbuim",
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^47.0.0"
+  },
+  "homepage": "https://github.com/levz0r/gmail-tester"
 }

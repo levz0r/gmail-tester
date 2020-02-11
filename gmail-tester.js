@@ -166,7 +166,7 @@ async function check_inbox(
 ) {
   if (typeof options !== "object") {
     console.error(
-      "This functionality is absolete! Please pass all params in options object!"
+      "[gmail-tester] This functionality is absolete! Please pass all params in options object!"
     );
     process.exit(1);
   }
