@@ -71,17 +71,21 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
       } else {
         let { parts } = gmail_email.payload;
         while (parts.length) {
-          let part = parts.shift()
+          let part = parts.shift();
 
-          if (part.parts)
-            parts = parts.concat(part.parts)
+          if (part.parts) {
+            parts = parts.concat(part.parts);
+          }
 
-          if (part.mimeType === 'text/plain')
-          email_body.text = Buffer.from(part.body.data, "base64").toString("utf8")
-
-          if (part.mimeType === 'text/html')
-          email_body.html = Buffer.from(part.body.data, "base64").toString("utf8")
-
+          if (part.mimeType === "text/plain") {
+            email_body.text = Buffer.from(part.body.data, "base64").toString(
+              "utf8"
+            );
+          } else if (part.mimeType === "text/html") {
+            email_body.html = Buffer.from(part.body.data, "base64").toString(
+              "utf8"
+            );
+          }
         }
       }
 
@@ -166,7 +170,7 @@ async function check_inbox(
 ) {
   if (typeof options !== "object") {
     console.error(
-      "[gmail-tester] This functionality is absolete! Please pass all params in options object!"
+      "[gmail-tester] This functionality is absolete! Please pass all params of check_inbox() in options object."
     );
     process.exit(1);
   }
@@ -180,13 +184,13 @@ async function check_inbox(
  * @param {string} token_path - Path to token json file.
  * @param {Object} options
  * @param {boolean} options.include_body - Return message body string.
- * @param {boolean} options.from - Filter on the email address of the receiver.
- * @param {boolean} options.to - Filter on the email address of the sender.
- * @param {boolean} options.subject - Filter on the subject of the email.
- * @param {boolean} options.before - Date. Filter messages received _after_ the specified date.
- * @param {boolean} options.after - Date. Filter messages received _before_ the specified date.
- * @param {boolean} options.wait_time_sec - Interval between inbox checks (in seconds). Default: 30 seconds.
- * @param {boolean} options.max_wait_time_sec - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
+ * @param {string} options.from - Filter on the email address of the receiver.
+ * @param {string} options.to - Filter on the email address of the sender.
+ * @param {string} options.subject - Filter on the subject of the email.
+ * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
+ * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
+ * @param {number} options.wait_time_sec - Interval between inbox checks (in seconds). Default: 30 seconds.
+ * @param {number} options.max_wait_time_sec - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
  */
 async function get_messages(credentials_json, token_path, options) {
   try {
