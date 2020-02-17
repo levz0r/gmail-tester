@@ -182,6 +182,13 @@ async function check_inbox(
  * @param {string} token_path - Path to token json file.
  * @param {Object} options
  * @param {boolean} options.include_body - Return message body string.
+ * @param {boolean} options.from - Filter on the email address of the receiver.
+ * @param {boolean} options.to - Filter on the email address of the sender.
+ * @param {boolean} options.subject - Filter on the subject of the email.
+ * @param {boolean} options.before - Date. Filter messages received _after_ the specified date.
+ * @param {boolean} options.after - Date. Filter messages received _before_ the specified date.
+ * @param {boolean} options.wait_time_sec - Interval between inbox checks (in seconds). Default: 30 seconds.
+ * @param {boolean} options.max_wait_time_sec - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
  */
 async function get_messages(credentials_json, token_path, options) {
   try {
