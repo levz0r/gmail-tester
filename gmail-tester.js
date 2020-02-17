@@ -189,8 +189,6 @@ async function check_inbox(
  * @param {string} options.subject - Filter on the subject of the email.
  * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
  * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
- * @param {number} options.wait_time_sec - Interval between inbox checks (in seconds). Default: 30 seconds.
- * @param {number} options.max_wait_time_sec - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
  */
 async function get_messages(credentials_json, token_path, options) {
   try {
