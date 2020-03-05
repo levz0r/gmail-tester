@@ -111,16 +111,9 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
         token_path,
         options
       );
-      for (let email of emails) {
-        if (
-          email.receiver === to &&
-          email.subject.indexOf(subject) >= 0 &&
-          email.from.indexOf(from) >= 0
-        ) {
-          console.log(`[gmail] Found!`);
-          found_email = email;
-          break;
-        }
+      if(emails.length > 0) {
+        console.log(`[gmail] Found!`);
+        found_email = emails[0];
       }
       if (!found_email) {
         console.log(
