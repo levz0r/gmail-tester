@@ -45,23 +45,21 @@ The process should look like this:
 
 # How to get credentials.json?
 
-1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret).
+1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret). Make sure to select `Other` for the application type.
 2.  Once done, go to [https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId](<https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId>) and download the OAuth2 credentials file, as shown in the image below. Make sure to replace `(project-name)` with your project name.
     <p align="center">
       <img src="https://i.ibb.co/z5FL6YK/get-credentials-json.png" alt="Get credentials.json">
+    </p>The `credentials.json` file should look like this:<p align="center">
+    <img src="https://i.ibb.co/1stgn28/credentials.png" alt="Credentials file">
     </p>
 
-The `credentials.json` file should look like this:
-
-<p align="center">
-  <img src="https://i.ibb.co/1stgn28/credentials.png" alt="Credentials file">
-</p>
+3.  Make sure the [Gmail API is activated](https://console.developers.google.com/apis/library/gmail.googleapis.com) for your account.
 
 If everything is done right, the last output from the script should be
 
 > [gmail] Found!
 
-3.  Congratulations! `gmail-tester` is ready to use.
+Congratulations! `gmail-tester` is ready to use.
 
 # API
 
