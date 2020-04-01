@@ -45,23 +45,25 @@ The process should look like this:
 
 # How to get credentials.json?
 
-1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret).
+1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret). Make sure to select `Other` for the application type.
 2.  Once done, go to [https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId](<https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId>) and download the OAuth2 credentials file, as shown in the image below. Make sure to replace `(project-name)` with your project name.
+
     <p align="center">
       <img src="https://i.ibb.co/z5FL6YK/get-credentials-json.png" alt="Get credentials.json">
     </p>
 
-The `credentials.json` file should look like this:
+    The `credentials.json` file should look like this:<p align="center">
+    <img src="https://i.ibb.co/1stgn28/credentials.png" alt="Credentials file">
 
-<p align="center">
-  <img src="https://i.ibb.co/1stgn28/credentials.png" alt="Credentials file">
-</p>
+    </p>
 
-If everything is done right, the last output from the script should be
+3.  Make sure the [Gmail API is activated](https://console.developers.google.com/apis/library/gmail.googleapis.com) for your account.
+
+If everything is done right, the last output from the script should be:
 
 > [gmail] Found!
 
-3.  Congratulations! `gmail-tester` is ready to use.
+Congratulations! `gmail-tester` is ready to use.
 
 # API
 
@@ -71,12 +73,12 @@ If everything is done right, the last output from the script should be
 `token_path`: Path to OAuth2 token file.<br>
 `options`: <br>
 
-- `from`: String. Filter on the email address of the receiver.
-- `to`: String. Filter on the email address of the sender.
-- `subject`: String. Filter on the subject of the email.
-- `include_body`: boolean. Set to `true` to fetch decoded email bodies.
-- `before`: Date. Filter messages received _after_ the specified date.
-- `after`: Date. Filter messages received _before_ the specified date.
+* `from`: String. Filter on the email address of the receiver.
+* `to`: String. Filter on the email address of the sender.
+* `subject`: String. Filter on the subject of the email.
+* `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+* `before`: Date. Filter messages received _after_ the specified date.
+* `after`: Date. Filter messages received _before_ the specified date.
 
 **Returns:**
 An array of `email` objects with the following fields:<br>
@@ -104,14 +106,14 @@ _Some senders will send you `text/html` content, the others will send you `plain
 `token_path`: Path to OAuth2 token file.<br>
 `options`: <br>
 
-- `from`: String. Filter on the email address of the receiver.
-- `to`: String. Filter on the email address of the sender.
-- `subject`: String. Filter on the subject of the email.
-- `include_body`: boolean. Set to `true` to fetch decoded email bodies.
-- `before`: Date. Filter messages received _after_ the specified date.
-- `after`: Date. Filter messages received _before_ the specified date.
-- `wait_time_sec`: Integer. Interval between inbox checks (in seconds). _Default: 30 seconds_.
-- `max_wait_time_sec`: Integer. Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.
+* `from`: String. Filter on the email address of the receiver.
+* `to`: String. Filter on the email address of the sender.
+* `subject`: String. Filter on the subject of the email.
+* `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+* `before`: Date. Filter messages received _after_ the specified date.
+* `after`: Date. Filter messages received _before_ the specified date.
+* `wait_time_sec`: Integer. Interval between inbox checks (in seconds). _Default: 30 seconds_.
+* `max_wait_time_sec`: Integer. Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.
 
 **Returns:**
 An array of `email` objects with the following fields:<br>
@@ -197,28 +199,30 @@ _[examples\cypress\integration\gmail.spec.js](https://github.com/levz0r/gmail-te
 describe("Email assertion:", () => {
   it("Look for an email with specific subject and link in email body", function() {
     // debugger; //Uncomment for debugger to work...
-    cy.task("gmail:get-messages", {
-      options: {
-        from: "AccountSupport@ubi.com",
-        subject: "Ubisoft Password Change Request",
-        include_body: true,
-        before: new Date(2019, 8, 24, 12, 31, 13), // Before September 24rd, 2019 12:31:13
-        after: new Date(2019, 7, 23) // After August 23, 2019
-      }
-    }).then(emails => {
-      assert.isAtLeast(
-        emails.length,
-        1,
-        "Expected to find at least one email, but none were found!"
-      );
-      const body = emails[0].body.html;
-      assert.isTrue(
-        body.indexOf(
-          "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
-        ) >= 0,
-        "Found reset link!"
-      );
-    });
+    cy
+      .task("gmail:get-messages", {
+        options: {
+          from: "AccountSupport@ubi.com",
+          subject: "Ubisoft Password Change Request",
+          include_body: true,
+          before: new Date(2019, 8, 24, 12, 31, 13), // Before September 24rd, 2019 12:31:13
+          after: new Date(2019, 7, 23) // After August 23, 2019
+        }
+      })
+      .then(emails => {
+        assert.isAtLeast(
+          emails.length,
+          1,
+          "Expected to find at least one email, but none were found!"
+        );
+        const body = emails[0].body.html;
+        assert.isTrue(
+          body.indexOf(
+            "https://account-uplay.ubi.com/en-GB/action/change-password?genomeid="
+          ) >= 0,
+          "Found reset link!"
+        );
+      });
   });
 });
 ```
@@ -229,4 +233,4 @@ Please feel free to contribute to this project.
 
 # Credits
 
-- Built using [googleapis](https://github.com/googleapis/googleapis).
+* Built using [googleapis](https://github.com/googleapis/googleapis).
