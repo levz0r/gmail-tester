@@ -111,21 +111,20 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
         token_path,
         options
       );
-      if(emails.length > 0) {
+      if (emails.length > 0) {
         console.log(`[gmail] Found!`);
         found_email = emails[0];
+        break;
       }
-      if (!found_email) {
-        console.log(
-          `[gmail] Message not found. Waiting ${wait_time_sec} seconds...`
-        );
-        done_waiting_time += wait_time_sec;
-        if (done_waiting_time >= max_wait_time_sec) {
-          console.log("[gmail] Maximum waiting time exceeded!");
-          break;
-        }
-        await util.promisify(setTimeout)(wait_time_sec * 1000);
+      console.log(
+        `[gmail] Message not found. Waiting ${wait_time_sec} seconds...`
+      );
+      done_waiting_time += wait_time_sec;
+      if (done_waiting_time >= max_wait_time_sec) {
+        console.log("[gmail] Maximum waiting time exceeded!");
+        break;
       }
+      await util.promisify(setTimeout)(wait_time_sec * 1000);
     } while (!found_email);
     return found_email;
   } catch (err) {
