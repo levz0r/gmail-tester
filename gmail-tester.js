@@ -138,15 +138,15 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
  *
  * @param {string} credentials_json - Path to credentials json file.
  * @param {string} token_path - Path to token json file.
- * @param {Object} options
- * @param {boolean} options.include_body - Set to `true` to fetch decoded email bodies.
- * @param {boolean} options.from - Filter on the email address of the receiver.
- * @param {boolean} options.to - Filter on the email address of the sender.
- * @param {boolean} options.subject - Filter on the subject of the email.
- * @param {boolean} options.before - Date. Filter messages received _after_ the specified date.
- * @param {boolean} options.after - Date. Filter messages received _before_ the specified date.
- * @param {boolean} options.wait_time_sec - Interval between inbox checks (in seconds). Default: 30 seconds.
- * @param {boolean} options.max_wait_time_sec - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
+ * @param {Object} [options]
+ * @param {boolean} [options.include_body] - Set to `true` to fetch decoded email bodies.
+ * @param {string} [options.from] - Filter on the email address of the receiver.
+ * @param {string} [options.to] - Filter on the email address of the sender.
+ * @param {string} [options.subject] - Filter on the subject of the email.
+ * @param {Date} [options.before] - Date. Filter messages received _after_ the specified date.
+ * @param {Date} [options.after] - Date. Filter messages received _before_ the specified date.
+ * @param {number} [options.wait_time_sec] - Interval between inbox checks (in seconds). Default: 30 seconds.
+ * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
  */
 async function check_inbox(
   credentials_json,
