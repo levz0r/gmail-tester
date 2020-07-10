@@ -102,8 +102,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
     console.log(
       `[gmail] Checking for message from '${from}', to: ${to}, contains '${subject}' in subject...`
     );
-    // Load client secrets from a local file.
-    let found_email = null;
+    let found_emails = null;
     let done_waiting_time = 0;
     do {
       const emails = await _get_recent_email(
@@ -113,7 +112,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
       );
       if (emails.length > 0) {
         console.log(`[gmail] Found!`);
-        found_email = emails[0];
+        found_emails = emails;
         break;
       }
       console.log(
@@ -125,8 +124,8 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
         break;
       }
       await util.promisify(setTimeout)(wait_time_sec * 1000);
-    } while (!found_email);
-    return found_email;
+    } while (!found_emails);
+    return found_emails;
   } catch (err) {
     console.log("[gmail] Error:", err);
     throw err;
