@@ -17,11 +17,21 @@ const path = require("path");
 const gmail_tester = require("../../../gmail-tester");
 
 module.exports = (on, config) => {
-  on("before:browser:launch", (browser = {}, args) => {
-    if (browser.name === "chrome") {
-      args.push("--remote-debugging-port=9221");
-      return args;
+  on("before:browser:launch", (browser = {}, launchOptions) => {
+    // `args` is an array of all the arguments that will
+    // be passed to browsers when it launches
+    console.log(launchOptions.args); // print all current args
+    if (browser.family === "chromium" && browser.name !== "electron") {
+      // auto open devtools
+      launchOptions.args.push("--auto-open-devtools-for-tabs");
+      // allow remote debugging
+      // launchOptions.args.push("--remote-debugging-port=9221");
+      // whatever you return here becomes the launchOptions
+    } else if (browser.family === "firefox") {
+      // auto open devtools
+      launchOptions.args.push("-devtools");
     }
+    return launchOptions;
   });
   on("task", {
     "gmail:get-messages": async args => {
