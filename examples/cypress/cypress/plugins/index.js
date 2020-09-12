@@ -41,6 +41,14 @@ module.exports = (on, config) => {
         args.options
       );
       return messages;
+    },
+    "gmail:check-inbox": async args => {
+      const messages = await gmail_tester.check_inbox(
+        path.resolve(__dirname, "credentials.json"),
+        path.resolve(__dirname, "token.json"),
+        args.options
+      );
+      return messages;
     }
   });
 };
