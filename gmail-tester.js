@@ -183,18 +183,42 @@ async function check_inbox(
  */
 async function get_messages(credentials_json, token_path, options) {
   try {
-    const emails = await _get_recent_email(
-      credentials_json,
-      token_path,
-      options
-    );
+    const emails = await _get_recent_email(credentials_json, token_path, options);
     return emails;
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
 }
 
+async function refresh_access_token(credentials_json, token_path) {
+  const content = JSON.parse(fs.readFileSync(credentials_json));
+  const oAuth2Client = await gmail.authorize(content, token_path);
+  const refresh_token_result = await oAuth2Client.refreshToken(
+    oAuth2Client.credentials.refresh_token
+  );
+  if (refresh_token_result && refresh_token_result.tokens) {
+    const new_token = JSON.parse(fs.readFileSync(token_path));
+    if (refresh_token_result.tokens.access_token) {
+      new_token.access_token = refresh_token_result.tokens.access_token;
+    }
+    if (refresh_token_result.tokens.refresh_token) {
+      new_token.refresh_token = refresh_token_result.tokens.refresh_token;
+    }
+    if (refresh_token_result.tokens.expiry_date) {
+      new_token.expiry_date = refresh_token_result.tokens.expiry_date;
+    }
+    fs.writeFileSync(token_path, JSON.stringify(new_token));
+  } else {
+    throw new Error(
+      `Refresh access token failed! Respose: ${JSON.stringify(
+        refresh_token_result
+      )}`
+    );
+  }
+}
+
 module.exports = {
   check_inbox,
-  get_messages
+  get_messages,
+  refresh_access_token
 };
