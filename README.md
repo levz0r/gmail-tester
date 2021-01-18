@@ -142,6 +142,13 @@ An array of `email` objects with the following fields:<br>
 
 In addition, verbose messages will be written to console.
 
+### `refresh_access_token(credentials_json, token_path)`
+
+`credentials_json`: Path to credentials JSON file.<br>
+`token_path`: Path to existing OAuth2 token file.<br>
+
+Refresh the access token. A new file will overwrite the existing one in `token_path`.
+
 # Example
 
 ## Using `check_inbox()` to look for a specific message:
