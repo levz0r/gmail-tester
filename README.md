@@ -1,3 +1,5 @@
+<!-- <p align="center"><img alt="gmail-tester" src="" width="80%"/></p> -->
+
 # gmail-tester
 
 <span align="center">
@@ -239,7 +241,11 @@ describe("Email assertion:", () => {
 });
 ```
 
-# Contributing
+# Contributors
+
+<a href="https://github.com/levz0r/gmail-tester/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=levz0r/gmail-tester" />
+</a>
 
 Please feel free to contribute to this project.
 
