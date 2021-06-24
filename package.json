@@ -3,6 +3,7 @@
   "version": "1.3.2",
   "description": "A simple NodeJS gmail client which checks the inbox for specific message existance",
   "main": "gmail-tester.js",
+  "types": "gmail-tester.d.ts",
   "scripts": {},
   "keywords": [
     "gmail",
