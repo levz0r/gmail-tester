@@ -123,7 +123,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
         console.log("[gmail] Maximum waiting time exceeded!");
         break;
       }
-      await util.promisify(setTimeout)(wait_time_sec * 1000);
+      await new Promise(r => setTimeout(r, wait_time_sec * 1000));
     } while (!found_emails);
     return found_emails;
   } catch (err) {
