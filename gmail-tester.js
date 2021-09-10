@@ -43,7 +43,8 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
   const gmail_emails = await gmail.get_recent_email(
     gmail_client,
     oAuth2Client,
-    query
+    query,
+    options.label
   );
   for (const gmail_email of gmail_emails) {
     const email = {
@@ -146,6 +147,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
  * @param {Date} [options.after] - Date. Filter messages received _before_ the specified date.
  * @param {number} [options.wait_time_sec] - Interval between inbox checks (in seconds). Default: 30 seconds.
  * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
+ * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
  */
 async function check_inbox(
   credentials_json,
@@ -156,7 +158,8 @@ async function check_inbox(
     to: undefined,
     wait_time_sec: 30,
     max_wait_time_sec: 30,
-    include_body: false
+    include_body: false,
+    label: "INBOX"
   }
 ) {
   if (typeof options !== "object") {

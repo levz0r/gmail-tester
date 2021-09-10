@@ -53,7 +53,7 @@ async function get_new_token(oAuth2Client, token_path) {
   return new Promise((resolve, reject) => {
     rl.question("Enter the code from that page here: ", async code => {
       rl.close();
-      oAuth2Client.getToken(code, function(err, token) {
+      oAuth2Client.getToken(code, function (err, token) {
         if (err) {
           reject(err);
         } else {
@@ -82,7 +82,7 @@ async function list_labels(gmail, oauth2Client) {
           userId: "me",
           auth: oauth2Client
         },
-        function(err, res) {
+        function (err, res) {
           if (err) {
             reject(err);
           } else {
@@ -115,7 +115,7 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
         auth: oauth2Client,
         labelIds: labelIds
       },
-      async function(err, res) {
+      async function (err, res) {
         if (err) {
           reject(err);
         } else {
@@ -131,7 +131,7 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
                   labelIds: labelIds,
                   pageToken: nextPageToken
                 },
-                function(err, res) {
+                function (err, res) {
                   if (err) {
                     reject(err);
                   } else {
@@ -158,10 +158,10 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
  * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
  * @param {String} query String used to filter the Messages listed.
  */
-async function get_recent_email(gmail, oauth2Client, query = "") {
+async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX") {
   try {
     const labels = await list_labels(gmail, oauth2Client);
-    const inbox_label_id = [labels.find(l => l.name === "INBOX").id];
+    const inbox_label_id = [labels.find(l => l.name === label).id];
     const messages = await list_messages(
       gmail,
       oauth2Client,
@@ -179,7 +179,7 @@ async function get_recent_email(gmail, oauth2Client, query = "") {
               id: message.id,
               format: "full"
             },
-            function(err, res) {
+            function (err, res) {
               if (err) {
                 reject(err);
               } else {
