@@ -95,17 +95,17 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
     if (options.include_attachments) {
       const parts = gmail_email.payload.parts || [];
       const attachmentInfos = parts.filter(part => part.body.size && part.body.attachmentId)
-        .map(part => ({ id: part.body.attachmentId, filename: part.filename }));
+        .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
 
       email.attachments = await Promise.all(
-        attachmentInfos.map(async ({ id, filename }) => {
+        attachmentInfos.map(async ({ id, filename, mimeType }) => {
           const { data: { data: base64Data } } = await gmail_client.users.messages.attachments.get({
             auth: oAuth2Client,
             userId: 'me',
             messageId: gmail_email.id,
             id
           });
-          return { data: base64Data, filename };
+          return { data: base64Data, filename, mimeType };
         })
       );
     }
