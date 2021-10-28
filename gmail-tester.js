@@ -91,6 +91,24 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
 
       email.body = email_body;
     }
+
+    if (options.include_attachments) {
+      const parts = gmail_email.payload.parts || [];
+      const attachmentInfos = parts.filter(part => part.body.size && part.body.attachmentId)
+        .map(part => ({ id: part.body.attachmentId, filename: part.filename }));
+
+      email.attachments = await Promise.all(
+        attachmentInfos.map(async ({ id, filename }) => {
+          const { data: { data: base64Data } } = await gmail_client.users.messages.attachments.get({
+            auth: oAuth2Client,
+            userId: 'me',
+            messageId: gmail_email.id,
+            id
+          });
+          return { data: Buffer.from(base64Data, 'base64').toString(), filename };
+        })
+      );
+    }
     emails.push(email);
   }
   return emails;
