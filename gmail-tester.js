@@ -105,7 +105,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
             messageId: gmail_email.id,
             id
           });
-          return { data: Buffer.from(base64Data, 'base64').toString(), filename };
+          return { data: base64Data, filename };
         })
       );
     }

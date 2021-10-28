@@ -86,7 +86,7 @@ Congratulations! `gmail-tester` is ready to use.
 - `to`: String. Filter on the email address of the sender.
 - `subject`: String. Filter on the subject of the email.
 - `include_body`: boolean. Set to `true` to fetch decoded email bodies.
-- `include_attachments`: boolean. Set to `true` to fetch decoded email attachments.
+- `include_attachments`: boolean. Set to `true` to fetch the base64-encoded email attachments.
 - `before`: Date. Filter messages received _after_ the specified date.
 - `after`: Date. Filter messages received _before_ the specified date.
 - `label`: String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
