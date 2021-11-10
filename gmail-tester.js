@@ -69,7 +69,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
             break;
         }
       } else {
-        let { parts } = gmail_email.payload;
+        const parts = [...gmail_email.payload.parts];
         while (parts.length) {
           let part = parts.shift();
 
