@@ -69,7 +69,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
             break;
         }
       } else {
-        let { parts } = gmail_email.payload;
+        let parts = [...gmail_email.payload.parts];
         while (parts.length) {
           let part = parts.shift();
 
@@ -90,6 +90,24 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
       }
 
       email.body = email_body;
+    }
+
+    if (options.include_attachments) {
+      const parts = gmail_email.payload.parts || [];
+      const attachment_infos = parts.filter(part => part.body.size && part.body.attachmentId)
+        .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
+
+      email.attachments = await Promise.all(
+        attachment_infos.map(async ({ id, filename, mimeType }) => {
+          const { data: { data: base64Data } } = await gmail_client.users.messages.attachments.get({
+            auth: oAuth2Client,
+            userId: 'me',
+            messageId: gmail_email.id,
+            id
+          });
+          return { data: base64Data, filename, mimeType };
+        })
+      );
     }
     emails.push(email);
   }
