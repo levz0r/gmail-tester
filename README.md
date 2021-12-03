@@ -121,6 +121,7 @@ _Some senders will send you `text/html` content, the others will send you `plain
 - `to`: String. Filter on the email address of the sender.
 - `subject`: String. Filter on the subject of the email.
 - `include_body`: boolean. Set to `true` to fetch decoded email bodies.
+- `include_attachments`: boolean. Set to `true` to fetch the base64-encoded email attachments.
 - `before`: Date. Filter messages received _after_ the specified date.
 - `after`: Date. Filter messages received _before_ the specified date.
 - `wait_time_sec`: Integer. Interval between inbox checks (in seconds). _Default: 30 seconds_.
