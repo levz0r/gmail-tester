@@ -16,7 +16,7 @@
   "author": "Lev Gelfenbuim",
   "license": "MIT",
   "dependencies": {
-    "googleapis": "^85.0.0"
+    "googleapis": "^92.0.0"
   },
   "homepage": "https://github.com/levz0r/gmail-tester"
 }
