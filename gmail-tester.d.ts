@@ -19,7 +19,7 @@ declare module "gmail-tester" {
     after?: Date;
     wait_time_sec?: number;
     max_wait_time_sec?: number;
-    label: string;
+    label?: string;
   }
 
   export interface GetMessagesOptions {
