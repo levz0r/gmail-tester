@@ -1,6 +1,6 @@
 const readline = require("readline");
 const { google } = require("googleapis");
-const tokenStore = require("token-store")
+const tokenStore = require("./token-store")
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
