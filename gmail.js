@@ -1,19 +1,15 @@
-const fs = require("fs");
-const path = require("path");
 const readline = require("readline");
 const { google } = require("googleapis");
+const tokenStore = require("token-store")
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
-// The file token.json stores the user's access and refresh tokens, and is
-// created automatically when the authorization flow completes for the first
-// time.
-const TOKEN_PATH = "token.json";
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
  * @param {Object} credentials The authorization client credentials.
+ * @param {string} token_path  Path to token json file.
  */
 async function authorize(credentials, token_path) {
   const { client_secret, client_id, redirect_uris } = credentials.installed;
@@ -24,10 +20,7 @@ async function authorize(credentials, token_path) {
   );
   // Check if we have previously stored a token.
   try {
-    const token = fs.readFileSync(
-      token_path || path.resolve(__dirname, TOKEN_PATH)
-    );
-    oAuth2Client.setCredentials(JSON.parse(token));
+    oAuth2Client.setCredentials(tokenStore.get(token_path));
     return oAuth2Client;
   } catch (error) {
     return await get_new_token(oAuth2Client, token_path);
@@ -38,7 +31,8 @@ async function authorize(credentials, token_path) {
  * Get and store new token after prompting for user authorization, and then
  * execute the given callback with the authorized OAuth2 client.
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback for the authorized client.
+ * @param {string} token_path  Path to token json file.
+ * @return {Promise} The promise for the authorized client.
  */
 async function get_new_token(oAuth2Client, token_path) {
   const authUrl = oAuth2Client.generateAuthUrl({
@@ -58,10 +52,7 @@ async function get_new_token(oAuth2Client, token_path) {
           reject(err);
         } else {
           oAuth2Client.setCredentials(token);
-          fs.writeFileSync(
-            token_path || path.resolve(__dirname, TOKEN_PATH),
-            JSON.stringify(token)
-          );
+          tokenStore.store(token, token_path)
           resolve(oAuth2Client);
         }
       });
