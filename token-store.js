@@ -6,11 +6,6 @@ const path = require('path');
 // time.
 const TOKEN_PATH = "token.json";
 
-module.exports = {
-  get: get,
-  store: store
-};
-
 /**
  * Reads the token from the specified path or from default path.
  * @param {String | null} token_path Path to the token file
@@ -37,3 +32,8 @@ function store(token, token_path) {
     JSON.stringify(token)
   );
 }
+
+module.exports = {
+  get: get,
+  store: store
+};

@@ -2,104 +2,6 @@ const gmail = require("./gmail");
 const fs = require("fs");
 const { google } = require("googleapis");
 
-module.exports = {
-  check_inbox,
-  get_messages,
-  refresh_access_token
-};
-
-/**
- * Poll inbox.
- *
- * @param {string} credentials_json - Path to credentials json file.
- * @param {string} token_path - Path to token json file.
- * @param {CheckInboxOptions} [options]
- * @param {boolean} [options.include_body] - Set to `true` to fetch decoded email bodies.
- * @param {string} [options.from] - Filter on the email address of the receiver.
- * @param {string} [options.to] - Filter on the email address of the sender.
- * @param {string} [options.subject] - Filter on the subject of the email.
- * @param {Date} [options.before] - Date. Filter messages received _after_ the specified date.
- * @param {Date} [options.after] - Date. Filter messages received _before_ the specified date.
- * @param {number} [options.wait_time_sec] - Interval between inbox checks (in seconds). Default: 30 seconds.
- * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
- * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
- */
-async function check_inbox(
-  credentials_json,
-  token_path,
-  options = {
-    subject: undefined,
-    from: undefined,
-    to: undefined,
-    wait_time_sec: 30,
-    max_wait_time_sec: 30,
-    include_body: false,
-    label: "INBOX"
-  }
-) {
-  if (typeof options !== "object") {
-    console.error(
-      "[gmail-tester] This functionality is obsolete! Please pass all params of check_inbox() in options object."
-    );
-    process.exit(1);
-  }
-  return __check_inbox(credentials_json, token_path, options);
-}
-
-/**
- * Get an array of messages
- *
- * @param {string} credentials_json - Path to credentials json file.
- * @param {string} token_path - Path to token json file.
- * @param {GetMessagesOptions} options
- * @param {boolean} options.include_body - Return message body string.
- * @param {string} options.from - Filter on the email address of the receiver.
- * @param {string} options.to - Filter on the email address of the sender.
- * @param {string} options.subject - Filter on the subject of the email.
- * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
- * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
- */
-async function get_messages(credentials_json, token_path, options) {
-  try {
-    return await _get_recent_email(credentials_json, token_path, options);
-  } catch (err) {
-    console.log("[gmail] Error:", err);
-  }
-}
-
-/**
- * Refreshes Access Token
- *
- * @param {string} credentials_json - Path to credentials json file.
- * @param {string} token_path - Path to token json file.
- */
-async function refresh_access_token(credentials_json, token_path) {
-  const credentialsObj = __get_credentials_object(credentials_json);
-  const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
-  const refresh_token_result = await oAuth2Client.refreshToken(
-    oAuth2Client.credentials.refresh_token
-  );
-  if (refresh_token_result && refresh_token_result.tokens) {
-    const new_token = JSON.parse(fs.readFileSync(token_path));
-    if (refresh_token_result.tokens.access_token) {
-      new_token.access_token = refresh_token_result.tokens.access_token;
-    }
-    if (refresh_token_result.tokens.refresh_token) {
-      new_token.refresh_token = refresh_token_result.tokens.refresh_token;
-    }
-    if (refresh_token_result.tokens.expiry_date) {
-      new_token.expiry_date = refresh_token_result.tokens.expiry_date;
-    }
-    fs.writeFileSync(token_path, JSON.stringify(new_token));
-  } else {
-    throw new Error(
-      `Refresh access token failed! Respose: ${JSON.stringify(
-        refresh_token_result
-      )}`
-    );
-  }
-}
-
 function _get_header(name, headers) {
   const found = headers.find(h => h.name === name);
   return found && found.value;
@@ -248,7 +150,104 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
   }
 }
 
+/**
+ * Poll inbox.
+ *
+ * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} token_path - Path to token json file.
+ * @param {CheckInboxOptions} [options]
+ * @param {boolean} [options.include_body] - Set to `true` to fetch decoded email bodies.
+ * @param {string} [options.from] - Filter on the email address of the receiver.
+ * @param {string} [options.to] - Filter on the email address of the sender.
+ * @param {string} [options.subject] - Filter on the subject of the email.
+ * @param {Date} [options.before] - Date. Filter messages received _after_ the specified date.
+ * @param {Date} [options.after] - Date. Filter messages received _before_ the specified date.
+ * @param {number} [options.wait_time_sec] - Interval between inbox checks (in seconds). Default: 30 seconds.
+ * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
+ * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
+ */
+async function check_inbox(
+  credentials_json,
+  token_path,
+  options = {
+    subject: undefined,
+    from: undefined,
+    to: undefined,
+    wait_time_sec: 30,
+    max_wait_time_sec: 30,
+    include_body: false,
+    label: "INBOX"
+  }
+) {
+  if (typeof options !== "object") {
+    console.error(
+      "[gmail-tester] This functionality is obsolete! Please pass all params of check_inbox() in options object."
+    );
+    process.exit(1);
+  }
+  return __check_inbox(credentials_json, token_path, options);
+}
+
+/**
+ * Get an array of messages
+ *
+ * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} token_path - Path to token json file.
+ * @param {GetMessagesOptions} options
+ * @param {boolean} options.include_body - Return message body string.
+ * @param {string} options.from - Filter on the email address of the receiver.
+ * @param {string} options.to - Filter on the email address of the sender.
+ * @param {string} options.subject - Filter on the subject of the email.
+ * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
+ * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
+ */
+async function get_messages(credentials_json, token_path, options) {
+  try {
+    return await _get_recent_email(credentials_json, token_path, options);
+  } catch (err) {
+    console.log("[gmail] Error:", err);
+  }
+}
+
+/**
+ * Refreshes Access Token
+ *
+ * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} token_path - Path to token json file.
+ */
+async function refresh_access_token(credentials_json, token_path) {
+  const credentialsObj = __get_credentials_object(credentials_json);
+  const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
+  const refresh_token_result = await oAuth2Client.refreshToken(
+    oAuth2Client.credentials.refresh_token
+  );
+  if (refresh_token_result && refresh_token_result.tokens) {
+    const new_token = JSON.parse(fs.readFileSync(token_path));
+    if (refresh_token_result.tokens.access_token) {
+      new_token.access_token = refresh_token_result.tokens.access_token;
+    }
+    if (refresh_token_result.tokens.refresh_token) {
+      new_token.refresh_token = refresh_token_result.tokens.refresh_token;
+    }
+    if (refresh_token_result.tokens.expiry_date) {
+      new_token.expiry_date = refresh_token_result.tokens.expiry_date;
+    }
+    fs.writeFileSync(token_path, JSON.stringify(new_token));
+  } else {
+    throw new Error(
+      `Refresh access token failed! Respose: ${JSON.stringify(
+        refresh_token_result
+      )}`
+    );
+  }
+}
+
 function __get_credentials_object(credentials) {
   return JSON.parse(fs.readFileSync(credentials));
 }
 
+module.exports = {
+  check_inbox,
+  get_messages,
+  refresh_access_token
+};
