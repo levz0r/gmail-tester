@@ -36,8 +36,8 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
 
   const query = _init_query(options);
   // Load client secrets from a local file.
-  const content = fs.readFileSync(credentials_json);
-  const oAuth2Client = await gmail.authorize(JSON.parse(content), token_path);
+  const credentialsObj = __get_credentials_object(credentials_json);
+  const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
   const gmail_client = google.gmail({ version: "v1", oAuth2Client });
   const gmail_emails = await gmail.get_recent_email(
     gmail_client,
@@ -155,7 +155,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
  *
  * @param {string} credentials_json - Path to credentials json file.
  * @param {string} token_path - Path to token json file.
- * @param {Object} [options]
+ * @param {CheckInboxOptions} [options]
  * @param {boolean} [options.include_body] - Set to `true` to fetch decoded email bodies.
  * @param {string} [options.from] - Filter on the email address of the receiver.
  * @param {string} [options.to] - Filter on the email address of the sender.
@@ -181,7 +181,7 @@ async function check_inbox(
 ) {
   if (typeof options !== "object") {
     console.error(
-      "[gmail-tester] This functionality is absolete! Please pass all params of check_inbox() in options object."
+      "[gmail-tester] This functionality is obsolete! Please pass all params of check_inbox() in options object."
     );
     process.exit(1);
   }
@@ -193,7 +193,7 @@ async function check_inbox(
  *
  * @param {string} credentials_json - Path to credentials json file.
  * @param {string} token_path - Path to token json file.
- * @param {Object} options
+ * @param {GetMessagesOptions} options
  * @param {boolean} options.include_body - Return message body string.
  * @param {string} options.from - Filter on the email address of the receiver.
  * @param {string} options.to - Filter on the email address of the sender.
@@ -203,16 +203,21 @@ async function check_inbox(
  */
 async function get_messages(credentials_json, token_path, options) {
   try {
-    const emails = await _get_recent_email(credentials_json, token_path, options);
-    return emails;
+    return await _get_recent_email(credentials_json, token_path, options);
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
 }
 
+/**
+ * Refreshes Access Token
+ *
+ * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} token_path - Path to token json file.
+ */
 async function refresh_access_token(credentials_json, token_path) {
-  const content = JSON.parse(fs.readFileSync(credentials_json));
-  const oAuth2Client = await gmail.authorize(content, token_path);
+  const credentialsObj = __get_credentials_object(credentials_json);
+  const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
   const refresh_token_result = await oAuth2Client.refreshToken(
     oAuth2Client.credentials.refresh_token
   );
@@ -235,6 +240,10 @@ async function refresh_access_token(credentials_json, token_path) {
       )}`
     );
   }
+}
+
+function __get_credentials_object(credentials) {
+  return JSON.parse(fs.readFileSync(credentials));
 }
 
 module.exports = {
