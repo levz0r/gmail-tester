@@ -147,14 +147,16 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
  * Get the recent email from your Gmail account
  *
  * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
- * @param {String} query String used to filter the Messages listed.
+ * @param {string} query String used to filter the Messages listed.
+ * @param {string} label Email label. Default = INBOX.
  */
-async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX") {
+async function get_recent_email(oauth2Client, query = "", label = "INBOX") {
   try {
-    const labels = await list_labels(gmail, oauth2Client);
+    const gmail_client = _gmail_client(oauth2Client);
+    const labels = await list_labels(gmail_client, oauth2Client);
     const inbox_label_id = [labels.find(l => l.name === label).id];
     const messages = await list_messages(
-      gmail,
+      gmail_client,
       oauth2Client,
       query,
       inbox_label_id
@@ -163,7 +165,7 @@ async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX"
     for (let message of messages) {
       promises.push(
         new Promise((resolve, reject) => {
-          gmail.users.messages.get(
+          gmail_client.users.messages.get(
             {
               auth: oauth2Client,
               userId: "me",
@@ -189,7 +191,37 @@ async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX"
   }
 }
 
+/**
+ * Get the attachments of the email
+ *
+ * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
+ * @param {Object} gmail_email Email object.
+ * @return {Promise<Awaited<{ data: base64Data, filename: string, mimeType: string }[]>>}
+ */
+async function get_email_attachments(oauth2Client, gmail_email) {
+  const parts = gmail_email.payload.parts || [];
+  const attachment_infos = parts.filter(part => part.body.size && part.body.attachmentId)
+    .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
+
+  return Promise.all(
+    attachment_infos.map(async ({ id, filename, mimeType }) => {
+      const { data: { data: base64Data } } = await _gmail_client(oauth2Client).users.messages.attachments.get({
+        auth: oAuth2Client,
+        userId: 'me',
+        messageId: gmail_email.id,
+        id
+      });
+      return { data: base64Data, filename, mimeType };
+    })
+  );
+}
+
+function _gmail_client(oAuth2Client) {
+  return google.gmail({ version: "v1", oAuth2Client });
+}
+
 module.exports = {
   authorize,
-  get_recent_email
+  get_recent_email,
+  get_email_attachments
 };

@@ -1,6 +1,5 @@
 const gmail = require("./gmail");
 const fs = require("fs");
-const { google } = require("googleapis");
 
 function _get_header(name, headers) {
   const found = headers.find(h => h.name === name);
@@ -38,9 +37,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
   // Load client secrets from a local file.
   const credentialsObj = __get_credentials_object(credentials_json);
   const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
-  const gmail_client = google.gmail({ version: "v1", oAuth2Client });
   const gmail_emails = await gmail.get_recent_email(
-    gmail_client,
     oAuth2Client,
     query,
     options.label
@@ -93,21 +90,7 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
     }
 
     if (options.include_attachments) {
-      const parts = gmail_email.payload.parts || [];
-      const attachment_infos = parts.filter(part => part.body.size && part.body.attachmentId)
-        .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
-
-      email.attachments = await Promise.all(
-        attachment_infos.map(async ({ id, filename, mimeType }) => {
-          const { data: { data: base64Data } } = await gmail_client.users.messages.attachments.get({
-            auth: oAuth2Client,
-            userId: 'me',
-            messageId: gmail_email.id,
-            id
-          });
-          return { data: base64Data, filename, mimeType };
-        })
-      );
+      email.attachments = await gmail.get_email_attachments(oAuth2Client, gmail_email);
     }
     emails.push(email);
   }
