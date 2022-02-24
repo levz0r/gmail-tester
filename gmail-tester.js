@@ -1,5 +1,6 @@
 const gmail = require("./gmail");
 const fs = require("fs");
+const tokenStore = require("./token-store")
 
 function _get_header(name, headers) {
   const found = headers.find(h => h.name === name);
@@ -205,7 +206,7 @@ async function refresh_access_token(credentials_json, token_path) {
     oAuth2Client.credentials.refresh_token
   );
   if (refresh_token_result && refresh_token_result.tokens) {
-    const new_token = JSON.parse(fs.readFileSync(token_path));
+    const new_token = tokenStore.get(token_path);
     if (refresh_token_result.tokens.access_token) {
       new_token.access_token = refresh_token_result.tokens.access_token;
     }
@@ -215,7 +216,7 @@ async function refresh_access_token(credentials_json, token_path) {
     if (refresh_token_result.tokens.expiry_date) {
       new_token.expiry_date = refresh_token_result.tokens.expiry_date;
     }
-    fs.writeFileSync(token_path, JSON.stringify(new_token));
+    tokenStore.store(new_token, token_path);
   } else {
     throw new Error(
       `Refresh access token failed! Respose: ${JSON.stringify(
