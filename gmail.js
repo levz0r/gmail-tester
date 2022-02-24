@@ -11,6 +11,7 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
  * given callback function.
  * @param {string} credentials_path The authorization client credentials.
  * @param {string} token_path  Path to token json file.
+ * @return {google.auth.OAuth2} The OAuth2Client.
  */
 async function authorize(credentials_path, token_path) {
   const { client_secret, client_id, redirect_uris } = _get_credentials_object(credentials_path).installed;
