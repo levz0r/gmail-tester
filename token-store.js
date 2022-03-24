@@ -34,6 +34,6 @@ function store(token, token_path) {
 }
 
 module.exports = {
-  get: get,
-  store: store
+  get,
+  store
 };
