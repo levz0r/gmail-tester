@@ -1,6 +1,5 @@
 const gmail = require("./gmail");
-const fs = require("fs");
-const { google } = require("googleapis");
+const tokenStore = require("./token-store")
 
 function _get_header(name, headers) {
   const found = headers.find(h => h.name === name);
@@ -31,16 +30,13 @@ function _init_query(options) {
   return query;
 }
 
-async function _get_recent_email(credentials_json, token_path, options = {}) {
+async function _get_recent_email(credentials_path, token_path, options = {}) {
   const emails = [];
 
   const query = _init_query(options);
   // Load client secrets from a local file.
-  const credentialsObj = __get_credentials_object(credentials_json);
-  const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
-  const gmail_client = google.gmail({ version: "v1", oAuth2Client });
+  const oAuth2Client = await gmail.authorize(credentials_path, token_path);
   const gmail_emails = await gmail.get_recent_email(
-    gmail_client,
     oAuth2Client,
     query,
     options.label
@@ -93,28 +89,14 @@ async function _get_recent_email(credentials_json, token_path, options = {}) {
     }
 
     if (options.include_attachments) {
-      const parts = gmail_email.payload.parts || [];
-      const attachment_infos = parts.filter(part => part.body.size && part.body.attachmentId)
-        .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
-
-      email.attachments = await Promise.all(
-        attachment_infos.map(async ({ id, filename, mimeType }) => {
-          const { data: { data: base64Data } } = await gmail_client.users.messages.attachments.get({
-            auth: oAuth2Client,
-            userId: 'me',
-            messageId: gmail_email.id,
-            id
-          });
-          return { data: base64Data, filename, mimeType };
-        })
-      );
+      email.attachments = await gmail.get_email_attachments(oAuth2Client, gmail_email);
     }
     emails.push(email);
   }
   return emails;
 }
 
-async function __check_inbox(credentials_json, token_path, options = {}) {
+async function __check_inbox(credentials_path, token_path, options = {}) {
   const { subject, from, to, wait_time_sec, max_wait_time_sec } = options;
   try {
     console.log(
@@ -124,7 +106,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
     let done_waiting_time = 0;
     do {
       const emails = await _get_recent_email(
-        credentials_json,
+        credentials_path,
         token_path,
         options
       );
@@ -153,7 +135,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
 /**
  * Poll inbox.
  *
- * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} credentials_path - Path to credentials json file.
  * @param {string} token_path - Path to token json file.
  * @param {CheckInboxOptions} [options]
  * @param {boolean} [options.include_body] - Set to `true` to fetch decoded email bodies.
@@ -167,7 +149,7 @@ async function __check_inbox(credentials_json, token_path, options = {}) {
  * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
  */
 async function check_inbox(
-  credentials_json,
+  credentials_path,
   token_path,
   options = {
     subject: undefined,
@@ -185,13 +167,13 @@ async function check_inbox(
     );
     process.exit(1);
   }
-  return __check_inbox(credentials_json, token_path, options);
+  return __check_inbox(credentials_path, token_path, options);
 }
 
 /**
  * Get an array of messages
  *
- * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} credentials_path - Path to credentials json file.
  * @param {string} token_path - Path to token json file.
  * @param {GetMessagesOptions} options
  * @param {boolean} options.include_body - Return message body string.
@@ -201,9 +183,9 @@ async function check_inbox(
  * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
  * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
  */
-async function get_messages(credentials_json, token_path, options) {
+async function get_messages(credentials_path, token_path, options) {
   try {
-    return await _get_recent_email(credentials_json, token_path, options);
+    return await _get_recent_email(credentials_path, token_path, options);
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
@@ -212,17 +194,16 @@ async function get_messages(credentials_json, token_path, options) {
 /**
  * Refreshes Access Token
  *
- * @param {string} credentials_json - Path to credentials json file.
+ * @param {string} credentials_path - Path to credentials json file.
  * @param {string} token_path - Path to token json file.
  */
-async function refresh_access_token(credentials_json, token_path) {
-  const credentialsObj = __get_credentials_object(credentials_json);
-  const oAuth2Client = await gmail.authorize(credentialsObj, token_path);
+async function refresh_access_token(credentials_path, token_path) {
+  const oAuth2Client = await gmail.authorize(credentials_path, token_path);
   const refresh_token_result = await oAuth2Client.refreshToken(
     oAuth2Client.credentials.refresh_token
   );
   if (refresh_token_result && refresh_token_result.tokens) {
-    const new_token = JSON.parse(fs.readFileSync(token_path));
+    const new_token = tokenStore.get(token_path);
     if (refresh_token_result.tokens.access_token) {
       new_token.access_token = refresh_token_result.tokens.access_token;
     }
@@ -232,7 +213,7 @@ async function refresh_access_token(credentials_json, token_path) {
     if (refresh_token_result.tokens.expiry_date) {
       new_token.expiry_date = refresh_token_result.tokens.expiry_date;
     }
-    fs.writeFileSync(token_path, JSON.stringify(new_token));
+    tokenStore.store(new_token, token_path);
   } else {
     throw new Error(
       `Refresh access token failed! Respose: ${JSON.stringify(
@@ -240,10 +221,6 @@ async function refresh_access_token(credentials_json, token_path) {
       )}`
     );
   }
-}
-
-function __get_credentials_object(credentials) {
-  return JSON.parse(fs.readFileSync(credentials));
 }
 
 module.exports = {

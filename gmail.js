@@ -1,6 +1,7 @@
 const readline = require("readline");
 const { google } = require("googleapis");
 const tokenStore = require("./token-store")
+const fs = require("fs");
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
@@ -8,11 +9,12 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
- * @param {Object} credentials The authorization client credentials.
+ * @param {string} credentials_path The authorization client credentials.
  * @param {string} token_path  Path to token json file.
+ * @return {google.auth.OAuth2} The OAuth2Client.
  */
-async function authorize(credentials, token_path) {
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+async function authorize(credentials_path, token_path) {
+  const { client_secret, client_id, redirect_uris } = _get_credentials_object(credentials_path).installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -23,18 +25,19 @@ async function authorize(credentials, token_path) {
     oAuth2Client.setCredentials(tokenStore.get(token_path));
     return oAuth2Client;
   } catch (error) {
-    return await get_new_token(oAuth2Client, token_path);
+    const newOAuth2Client = await get_new_token(oAuth2Client);
+    tokenStore.store(newOAuth2Client.credentials, token_path);
+    return newOAuth2Client;
   }
 }
 
 /**
- * Get and store new token after prompting for user authorization, and then
+ * Get a new token after prompting for user authorization, and then
  * execute the given callback with the authorized OAuth2 client.
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
- * @param {string} token_path  Path to token json file.
- * @return {Promise} The promise for the authorized client.
+ * @return {Promise<google.auth.OAuth2>} The promise for the authorized client.
  */
-async function get_new_token(oAuth2Client, token_path) {
+async function get_new_token(oAuth2Client) {
   const authUrl = oAuth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES
@@ -52,7 +55,6 @@ async function get_new_token(oAuth2Client, token_path) {
           reject(err);
         } else {
           oAuth2Client.setCredentials(token);
-          tokenStore.store(token, token_path)
           resolve(oAuth2Client);
         }
       });
@@ -147,14 +149,16 @@ async function list_messages(gmail, oauth2Client, query, labelIds) {
  * Get the recent email from your Gmail account
  *
  * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
- * @param {String} query String used to filter the Messages listed.
+ * @param {string} query String used to filter the Messages listed.
+ * @param {string} label Email label. Default = INBOX.
  */
-async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX") {
+async function get_recent_email(oauth2Client, query = "", label = "INBOX") {
   try {
-    const labels = await list_labels(gmail, oauth2Client);
+    const gmail_client = _gmail_client(oauth2Client);
+    const labels = await list_labels(gmail_client, oauth2Client);
     const inbox_label_id = [labels.find(l => l.name === label).id];
     const messages = await list_messages(
-      gmail,
+      gmail_client,
       oauth2Client,
       query,
       inbox_label_id
@@ -163,7 +167,7 @@ async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX"
     for (let message of messages) {
       promises.push(
         new Promise((resolve, reject) => {
-          gmail.users.messages.get(
+          gmail_client.users.messages.get(
             {
               auth: oauth2Client,
               userId: "me",
@@ -189,7 +193,41 @@ async function get_recent_email(gmail, oauth2Client, query = "", label = "INBOX"
   }
 }
 
+/**
+ * Get the attachments of the email
+ *
+ * @param {google.auth.OAuth2} oauth2Client An authorized OAuth2 client.
+ * @param {Object} gmail_email Email object.
+ * @return {Promise<Awaited<{ data: base64Data, filename: string, mimeType: string }[]>>}
+ */
+async function get_email_attachments(oauth2Client, gmail_email) {
+  const parts = gmail_email.payload.parts || [];
+  const attachment_infos = parts.filter(part => part.body.size && part.body.attachmentId)
+    .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
+
+  return Promise.all(
+    attachment_infos.map(async ({ id, filename, mimeType }) => {
+      const { data: { data: base64Data } } = await _gmail_client(oauth2Client).users.messages.attachments.get({
+        auth: oAuth2Client,
+        userId: 'me',
+        messageId: gmail_email.id,
+        id
+      });
+      return { data: base64Data, filename, mimeType };
+    })
+  );
+}
+
+function _gmail_client(oAuth2Client) {
+  return google.gmail({ version: "v1", oAuth2Client });
+}
+
+function _get_credentials_object(credentials) {
+  return JSON.parse(fs.readFileSync(credentials));
+}
+
 module.exports = {
   authorize,
-  get_recent_email
+  get_recent_email,
+  get_email_attachments
 };
