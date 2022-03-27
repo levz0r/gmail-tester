@@ -29,7 +29,7 @@ async function authorize(credentials, token) {
     if(token instanceof Object) {
       tokenStore.store(newOAuth2Client.credentials);
     } else {
-      tokenStore.store(newOAuth2Client.credentials, token_path);
+      tokenStore.store(newOAuth2Client.credentials, token);
     }
     return newOAuth2Client;
   }
