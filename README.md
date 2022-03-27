@@ -76,10 +76,10 @@ Congratulations! `gmail-tester` is ready to use.
 
 # API
 
-### `get_messages(credentials_path, token_path, options)`
+### `get_messages(credentials, token, options)`
 
-`credentials_path`: Path to credentials JSON file.<br>
-`token_path`: Path to OAuth2 token file.<br>
+`credentials`: Path to credentials JSON file or JSON Object.<br>
+`token`: Path to OAuth2 token file or JSON Object.<br>
 `options`: <br>
 
 - `from`: String. Filter on the email address of the receiver.
@@ -111,10 +111,10 @@ An array of `email` objects with the following fields:<br>
 
 _Some senders will send you `text/html` content, the others will send you `plain/text`, and some will send you both. Make sure you are looking for the content in the right body field._
 
-### `check_inbox(credentials_path, token_path, options = {})`
+### `check_inbox(credentials, token, options = {})`
 
-`credentials_path`: Path to credentials JSON file.<br>
-`token_path`: Path to OAuth2 token file.<br>
+`credentials`: Path to credentials JSON file or JSON Object.<br>
+`token`: Path to OAuth2 token file or JSON Object.<br>
 `options`: <br>
 
 - `from`: String. Filter on the email address of the receiver.

@@ -30,12 +30,12 @@ function _init_query(options) {
   return query;
 }
 
-async function _get_recent_email(credentials_path, token_path, options = {}) {
+async function _get_recent_email(credentials, token, options = {}) {
   const emails = [];
 
   const query = _init_query(options);
   // Load client secrets from a local file.
-  const oAuth2Client = await gmail.authorize(credentials_path, token_path);
+  const oAuth2Client = await gmail.authorize(credentials, token);
   const gmail_emails = await gmail.get_recent_email(
     oAuth2Client,
     query,
@@ -96,7 +96,7 @@ async function _get_recent_email(credentials_path, token_path, options = {}) {
   return emails;
 }
 
-async function __check_inbox(credentials_path, token_path, options = {}) {
+async function __check_inbox(credentials, token, options = {}) {
   const { subject, from, to, wait_time_sec, max_wait_time_sec } = options;
   try {
     console.log(
@@ -106,8 +106,8 @@ async function __check_inbox(credentials_path, token_path, options = {}) {
     let done_waiting_time = 0;
     do {
       const emails = await _get_recent_email(
-        credentials_path,
-        token_path,
+        credentials,
+        token,
         options
       );
       if (emails.length > 0) {
@@ -135,8 +135,8 @@ async function __check_inbox(credentials_path, token_path, options = {}) {
 /**
  * Poll inbox.
  *
- * @param {string} credentials_path - Path to credentials json file.
- * @param {string} token_path - Path to token json file.
+ * @param {string | Object} credentials - Path to credentials json file or credentials Object.
+ * @param {string | Object} token - Path to token json file or token Object.
  * @param {CheckInboxOptions} [options]
  * @param {boolean} [options.include_body] - Set to `true` to fetch decoded email bodies.
  * @param {string} [options.from] - Filter on the email address of the receiver.
@@ -149,8 +149,8 @@ async function __check_inbox(credentials_path, token_path, options = {}) {
  * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
  */
 async function check_inbox(
-  credentials_path,
-  token_path,
+  credentials,
+  token,
   options = {
     subject: undefined,
     from: undefined,
@@ -167,14 +167,14 @@ async function check_inbox(
     );
     process.exit(1);
   }
-  return __check_inbox(credentials_path, token_path, options);
+  return __check_inbox(credentials, token, options);
 }
 
 /**
  * Get an array of messages
  *
- * @param {string} credentials_path - Path to credentials json file.
- * @param {string} token_path - Path to token json file.
+ * @param {string | Object} credentials - Path to credentials json file or credentials Object.
+ * @param {string | Object} token - Path to token json file or token Object.
  * @param {GetMessagesOptions} options
  * @param {boolean} options.include_body - Return message body string.
  * @param {string} options.from - Filter on the email address of the receiver.
@@ -183,9 +183,9 @@ async function check_inbox(
  * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
  * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
  */
-async function get_messages(credentials_path, token_path, options) {
+async function get_messages(credentials, token, options) {
   try {
-    return await _get_recent_email(credentials_path, token_path, options);
+    return await _get_recent_email(credentials, token, options);
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
