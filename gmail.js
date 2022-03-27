@@ -9,12 +9,12 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
- * @param {string} credentials_path The authorization client credentials.
- * @param {string} token_path  Path to token json file.
+ * @param {string | Object} credentials The authorization client credentials.
+ * @param {string | Object} token  Token.
  * @return {google.auth.OAuth2} The OAuth2Client.
  */
-async function authorize(credentials_path, token_path) {
-  const { client_secret, client_id, redirect_uris } = _get_credentials_object(credentials_path).installed;
+async function authorize(credentials, token) {
+  const { client_secret, client_id, redirect_uris } = _get_credentials_object(credentials).installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -22,11 +22,15 @@ async function authorize(credentials_path, token_path) {
   );
   // Check if we have previously stored a token.
   try {
-    oAuth2Client.setCredentials(tokenStore.get(token_path));
+    oAuth2Client.setCredentials(_get_token_object(token));
     return oAuth2Client;
   } catch (error) {
     const newOAuth2Client = await get_new_token(oAuth2Client);
-    tokenStore.store(newOAuth2Client.credentials, token_path);
+    if(token instanceof Object) {
+      tokenStore.store(newOAuth2Client.credentials);
+    } else {
+      tokenStore.store(newOAuth2Client.credentials, token_path);
+    }
     return newOAuth2Client;
   }
 }
@@ -223,7 +227,17 @@ function _gmail_client(oAuth2Client) {
 }
 
 function _get_credentials_object(credentials) {
+  if(credentials instanceof Object){
+    return credentials;
+  }
   return JSON.parse(fs.readFileSync(credentials));
+}
+
+function _get_token_object(token) {
+  if(token instanceof Object){
+    return token;
+  }
+  return tokenStore.get(token)
 }
 
 module.exports = {
