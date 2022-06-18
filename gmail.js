@@ -212,7 +212,7 @@ async function get_email_attachments(oauth2Client, gmail_email) {
   return Promise.all(
     attachment_infos.map(async ({ id, filename, mimeType }) => {
       const { data: { data: base64Data } } = await _gmail_client(oauth2Client).users.messages.attachments.get({
-        auth: oAuth2Client,
+        auth: oauth2Client,
         userId: 'me',
         messageId: gmail_email.id,
         id
