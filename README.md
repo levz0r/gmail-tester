@@ -87,8 +87,8 @@ Congratulations! `gmail-tester` is ready to use.
 - `subject`: String. Filter on the subject of the email.
 - `include_body`: boolean. Set to `true` to fetch decoded email bodies.
 - `include_attachments`: boolean. Set to `true` to fetch the base64-encoded email attachments.
-- `before`: Date. Filter messages received _after_ the specified date.
-- `after`: Date. Filter messages received _before_ the specified date.
+- `before`: Date. Filter messages received _before_ the specified date.
+- `after`: Date. Filter messages received _after_ the specified date.
 - `label`: String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
 
 **Returns:**
@@ -122,8 +122,8 @@ _Some senders will send you `text/html` content, the others will send you `plain
 - `subject`: String. Filter on the subject of the email.
 - `include_body`: boolean. Set to `true` to fetch decoded email bodies.
 - `include_attachments`: boolean. Set to `true` to fetch the base64-encoded email attachments.
-- `before`: Date. Filter messages received _after_ the specified date.
-- `after`: Date. Filter messages received _before_ the specified date.
+- `before`: Date. Filter messages received _before_ the specified date.
+- `after`: Date. Filter messages received _after_ the specified date.
 - `wait_time_sec`: Integer. Interval between inbox checks (in seconds). _Default: 30 seconds_.
 - `max_wait_time_sec`: Integer. Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.
 - `label`: String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
