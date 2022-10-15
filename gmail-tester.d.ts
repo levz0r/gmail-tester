@@ -15,7 +15,7 @@ declare module "gmail-tester" {
       html: string;
       text: string;
     };
-    attachments: Attachment[];
+    attachments?: Attachment[];
   }
 
   export interface CheckInboxOptions {
@@ -28,7 +28,7 @@ declare module "gmail-tester" {
     wait_time_sec?: number;
     max_wait_time_sec?: number;
     label?: string;
-    include_attachments: boolean;
+    include_attachments?: boolean;
   }
 
   export interface GetMessagesOptions {
@@ -40,20 +40,28 @@ declare module "gmail-tester" {
     after?: Date;
   }
 
+  export interface Credentials {
+    installed : {
+      client_id: string,
+      client_secret: string,
+      redirect_uris: string[]
+    }
+  }
+
   export function check_inbox(
-    credentials_json: string,
-    token_path: string,
+    credentials: string | Credentials,
+    token: string | Record<string, unknown>,
     options: CheckInboxOptions
   ): Promise<Email[]>;
 
   export function get_messages(
-    credentials_json: string,
-    token_path: string,
+    credentials: string | Credentials,
+    token: string | Record<string, unknown>,
     options: GetMessagesOptions
   ): Promise<Email[]>;
 
   export function refresh_access_token(
-    credentials_json: string,
-    token_path: string
+    credentials: string | Credentials,
+    token: string | Record<string, unknown>,
   ): Promise<void>;
 }

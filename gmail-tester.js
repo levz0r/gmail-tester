@@ -194,16 +194,16 @@ async function get_messages(credentials, token, options) {
 /**
  * Refreshes Access Token
  *
- * @param {string} credentials_path - Path to credentials json file.
- * @param {string} token_path - Path to token json file.
+ * @param {string | Object} credentials - Path to credentials json file or credentials Object.
+ * @param {string | Object} token - Path to token json file or token Object.
  */
-async function refresh_access_token(credentials_path, token_path) {
-  const oAuth2Client = await gmail.authorize(credentials_path, token_path);
+async function refresh_access_token(credentials, token) {
+  const oAuth2Client = await gmail.authorize(credentials, token);
   const refresh_token_result = await oAuth2Client.refreshToken(
     oAuth2Client.credentials.refresh_token
   );
   if (refresh_token_result && refresh_token_result.tokens) {
-    const new_token = tokenStore.get(token_path);
+    const new_token = tokenStore.get(token);
     if (refresh_token_result.tokens.access_token) {
       new_token.access_token = refresh_token_result.tokens.access_token;
     }
@@ -213,7 +213,7 @@ async function refresh_access_token(credentials_path, token_path) {
     if (refresh_token_result.tokens.expiry_date) {
       new_token.expiry_date = refresh_token_result.tokens.expiry_date;
     }
-    tokenStore.store(new_token, token_path);
+    tokenStore.store(new_token, token);
   } else {
     throw new Error(
       `Refresh access token failed! Respose: ${JSON.stringify(
