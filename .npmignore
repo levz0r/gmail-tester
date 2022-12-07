@@ -1,1 +1,9 @@
 spec
+.github
+.prettierrc
+.vscode
+README.md
+credentials.json
+token.json
+test.js
+logo.png
