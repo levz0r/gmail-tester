@@ -16,6 +16,4 @@ const gmail_tester = require("./gmail-tester");
     to: "",
     include_body: true
   });
-
-  let k = 1;
 })();
