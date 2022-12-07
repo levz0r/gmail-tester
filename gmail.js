@@ -1,7 +1,8 @@
 const readline = require("readline");
 const { google } = require("googleapis");
-const tokenStore = require("./token-store")
+const tokenStore = require("./token-store");
 const fs = require("fs");
+const { authenticate } = require("./libs/oauth2");
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
@@ -14,7 +15,8 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
  * @return {google.auth.OAuth2} The OAuth2Client.
  */
 async function authorize(credentials, token) {
-  const { client_secret, client_id, redirect_uris } = _get_credentials_object(credentials).installed;
+  const { client_secret, client_id, redirect_uris } =
+    _get_credentials_object(credentials).installed;
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -25,8 +27,8 @@ async function authorize(credentials, token) {
     oAuth2Client.setCredentials(_get_token_object(token));
     return oAuth2Client;
   } catch (error) {
-    const newOAuth2Client = await get_new_token(oAuth2Client);
-    if(token instanceof Object) {
+    const newOAuth2Client = await get_new_token(oAuth2Client, token);
+    if (token instanceof Object) {
       tokenStore.store(newOAuth2Client.credentials);
     } else {
       tokenStore.store(newOAuth2Client.credentials, token);
@@ -41,29 +43,8 @@ async function authorize(credentials, token) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @return {Promise<google.auth.OAuth2>} The promise for the authorized client.
  */
-async function get_new_token(oAuth2Client) {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: SCOPES
-  });
-  console.log("Authorize this app by visiting this url:", authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  return new Promise((resolve, reject) => {
-    rl.question("Enter the code from that page here: ", async code => {
-      rl.close();
-      oAuth2Client.getToken(code, function (err, token) {
-        if (err) {
-          reject(err);
-        } else {
-          oAuth2Client.setCredentials(token);
-          resolve(oAuth2Client);
-        }
-      });
-    });
-  });
+async function get_new_token(oAuth2Client, token) {
+  return authenticate(oAuth2Client, SCOPES, token);
 }
 
 /**
@@ -206,14 +187,21 @@ async function get_recent_email(oauth2Client, query = "", label = "INBOX") {
  */
 async function get_email_attachments(oauth2Client, gmail_email) {
   const parts = gmail_email.payload.parts || [];
-  const attachment_infos = parts.filter(part => part.body.size && part.body.attachmentId)
-    .map(({ body, filename, mimeType }) => ({ id: body.attachmentId, filename, mimeType }));
+  const attachment_infos = parts
+    .filter(part => part.body.size && part.body.attachmentId)
+    .map(({ body, filename, mimeType }) => ({
+      id: body.attachmentId,
+      filename,
+      mimeType
+    }));
 
   return Promise.all(
     attachment_infos.map(async ({ id, filename, mimeType }) => {
-      const { data: { data: base64Data } } = await _gmail_client(oauth2Client).users.messages.attachments.get({
+      const {
+        data: { data: base64Data }
+      } = await _gmail_client(oauth2Client).users.messages.attachments.get({
         auth: oauth2Client,
-        userId: 'me',
+        userId: "me",
         messageId: gmail_email.id,
         id
       });
@@ -227,17 +215,17 @@ function _gmail_client(oAuth2Client) {
 }
 
 function _get_credentials_object(credentials) {
-  if(credentials instanceof Object){
+  if (credentials instanceof Object) {
     return credentials;
   }
   return JSON.parse(fs.readFileSync(credentials));
 }
 
 function _get_token_object(token) {
-  if(token instanceof Object){
+  if (token instanceof Object) {
     return token;
   }
-  return tokenStore.get(token)
+  return tokenStore.get(token);
 }
 
 module.exports = {
