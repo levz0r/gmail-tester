@@ -30,16 +30,17 @@ function _init_query(options) {
   return query;
 }
 
-async function _get_recent_email(credentials, token, options = {}) {
+async function _get_recent_email(credentials, token, options = {}, port = 32019) {
   const emails = [];
 
   const query = _init_query(options);
   // Load client secrets from a local file.
-  const oAuth2Client = await gmail.authorize(credentials, token);
+  const oAuth2Client = await gmail.authorize(credentials, token, port);
   const gmail_emails = await gmail.get_recent_email(
     oAuth2Client,
     query,
-    options.label
+    options.label,
+    port
   );
   for (const gmail_email of gmail_emails) {
     const email = {
@@ -96,7 +97,7 @@ async function _get_recent_email(credentials, token, options = {}) {
   return emails;
 }
 
-async function __check_inbox(credentials, token, options = {}) {
+async function __check_inbox(credentials, token, options = {}, port = 32019) {
   const { subject, from, to, wait_time_sec, max_wait_time_sec } = options;
   try {
     console.log(
@@ -108,7 +109,8 @@ async function __check_inbox(credentials, token, options = {}) {
       const emails = await _get_recent_email(
         credentials,
         token,
-        options
+        options,
+        port
       );
       if (emails.length > 0) {
         console.log(`[gmail] Found!`);
@@ -147,6 +149,7 @@ async function __check_inbox(credentials, token, options = {}) {
  * @param {number} [options.wait_time_sec] - Interval between inbox checks (in seconds). Default: 30 seconds.
  * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
  * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable.
  */
 async function check_inbox(
   credentials,
@@ -159,7 +162,8 @@ async function check_inbox(
     max_wait_time_sec: 30,
     include_body: false,
     label: "INBOX"
-  }
+  },
+  port = 32019
 ) {
   if (typeof options !== "object") {
     console.error(
@@ -167,7 +171,7 @@ async function check_inbox(
     );
     process.exit(1);
   }
-  return __check_inbox(credentials, token, options);
+  return __check_inbox(credentials, token, options, port);
 }
 
 /**
@@ -182,10 +186,11 @@ async function check_inbox(
  * @param {string} options.subject - Filter on the subject of the email.
  * @param {Object} options.before - Date. Filter messages received _after_ the specified date.
  * @param {Object} options.after - Date. Filter messages received _before_ the specified date.
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable. 
  */
-async function get_messages(credentials, token, options) {
+async function get_messages(credentials, token, options, port = 32019) {
   try {
-    return await _get_recent_email(credentials, token, options);
+    return await _get_recent_email(credentials, token, options, port = 32019);
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
@@ -196,9 +201,10 @@ async function get_messages(credentials, token, options) {
  *
  * @param {string | Object} credentials - Path to credentials json file or credentials Object.
  * @param {string | Object} token - Path to token json file or token Object.
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable. 
  */
-async function refresh_access_token(credentials, token) {
-  const oAuth2Client = await gmail.authorize(credentials, token);
+async function refresh_access_token(credentials, token, port = 32019) {
+  const oAuth2Client = await gmail.authorize(credentials, token, port = 32019);
   const refresh_token_result = await oAuth2Client.refreshToken(
     oAuth2Client.credentials.refresh_token
   );
