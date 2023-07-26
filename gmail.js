@@ -14,7 +14,7 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
  * @param {string | Object} token  Token.
  * @return {google.auth.OAuth2} The OAuth2Client.
  */
-async function authorize(credentials, token) {
+async function authorize(credentials, token, port = 32019) {
   const { client_secret, client_id, redirect_uris } =
     _get_credentials_object(credentials).installed;
   const oAuth2Client = new google.auth.OAuth2(
@@ -27,7 +27,7 @@ async function authorize(credentials, token) {
     oAuth2Client.setCredentials(_get_token_object(token));
     return oAuth2Client;
   } catch (error) {
-    const newOAuth2Client = await get_new_token(oAuth2Client, token);
+    const newOAuth2Client = await get_new_token(oAuth2Client, token, port = 32019);
     if (token instanceof Object) {
       tokenStore.store(newOAuth2Client.credentials);
     } else {
@@ -43,8 +43,8 @@ async function authorize(credentials, token) {
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
  * @return {Promise<google.auth.OAuth2>} The promise for the authorized client.
  */
-async function get_new_token(oAuth2Client, token) {
-  return authenticate(oAuth2Client, SCOPES, token);
+async function get_new_token(oAuth2Client, token, port = 32019) {
+  return authenticate(oAuth2Client, SCOPES, token, port);
 }
 
 /**
