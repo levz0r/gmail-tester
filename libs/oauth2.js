@@ -32,23 +32,27 @@ if (fs.existsSync(keyPath)) {
 /**
  * Open an http server to accept the oauth callback. In this simple example, the only request to our webserver is to /callback?code=<code>
  */
-async function authenticate(oauth2Client, scopes, tokensFile) {
+async function authenticate(oauth2Client, scopes, tokensFile, port = 80) {
   return new Promise((resolve, reject) => {
     // grab the url that will be used for authorization
     if (!fs.existsSync(tokensFile)) {
       const authorizeUrl = oauth2Client.generateAuthUrl({
         access_type: "offline",
-        scope: scopes.join(" ")
+        scope: scopes.join(" "),
+        redirect_uri: `http://localhost:${port}`
       });
       console.log(`Authorize this app by visiting this url: ${authorizeUrl}`);
       const server = http
         .createServer(async (req, res) => {
           try {
             if (req.url.indexOf("/") > -1) {
-              const qs = new url.URL(req.url, "http://localhost:80").searchParams;
+              const qs = new url.URL(req.url, `http://localhost:${port}`).searchParams;
               res.end("Authentication successful! Please return to the console.");
               server.destroy();
-              const { tokens } = await oauth2Client.getToken(qs.get("code"));
+              const { tokens } = await oauth2Client.getToken({
+                code: qs.get("code"),
+                redirect_uri: `http://localhost:${port}`
+              });
               fs.writeFileSync(tokensFile, JSON.stringify(tokens, null, 2));
               oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
               resolve(oauth2Client);
@@ -57,7 +61,7 @@ async function authenticate(oauth2Client, scopes, tokensFile) {
             reject(e);
           }
         })
-        .listen(80, () => {
+        .listen(port, () => {
           // open the browser to the authorize url to start the workflow
           opn(authorizeUrl, { wait: false }).then(cp => cp.unref());
         });
