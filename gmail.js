@@ -12,6 +12,7 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
  * given callback function.
  * @param {string | Object} credentials The authorization client credentials.
  * @param {string | Object} token  Token.
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable.
  * @return {google.auth.OAuth2} The OAuth2Client.
  */
 async function authorize(credentials, token, port = 32019) {
@@ -41,6 +42,8 @@ async function authorize(credentials, token, port = 32019) {
  * Get a new token after prompting for user authorization, and then
  * execute the given callback with the authorized OAuth2 client.
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
+ * @param {string | Object} token  Token.
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable.
  * @return {Promise<google.auth.OAuth2>} The promise for the authorized client.
  */
 async function get_new_token(oAuth2Client, token, port = 32019) {
