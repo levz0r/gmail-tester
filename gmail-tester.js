@@ -39,8 +39,7 @@ async function _get_recent_email(credentials, token, options = {}, port = 32019)
   const gmail_emails = await gmail.get_recent_email(
     oAuth2Client,
     query,
-    options.label,
-    port
+    options.label
   );
   for (const gmail_email of gmail_emails) {
     const email = {
