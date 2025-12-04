@@ -2,6 +2,7 @@ spec
 .github
 .prettierrc
 .vscode
+.claude
 README.md
 credentials.json
 token.json
