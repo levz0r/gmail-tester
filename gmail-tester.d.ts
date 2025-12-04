@@ -10,6 +10,7 @@ declare module "gmail-tester" {
     from: string;
     receiver: string;
     subject: string;
+    cc?: string;
     date: Date;
     body?: {
       html: string;
