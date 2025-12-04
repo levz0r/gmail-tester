@@ -38,6 +38,8 @@ declare module "gmail-tester" {
     subject?: string;
     before?: Date;
     after?: Date;
+    label?: string;
+    include_attachments?: boolean;
   }
 
   export interface Credentials {
