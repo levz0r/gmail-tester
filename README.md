@@ -66,6 +66,15 @@ The process should look like this:
 
 3.  Make sure the [Gmail API is activated](https://console.developers.google.com/apis/library/gmail.googleapis.com) for your account.
 
+4.  **Configure OAuth consent screen:**
+    - Go to [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent)
+    - If your app is in **"Testing"** mode (not published), you must add the Gmail accounts you want to test as **Test users**
+    - Note: Refresh tokens for apps in testing mode expire after 7 days. To avoid this, publish your app (verification not required for personal use)
+
+5.  **Add authorized redirect URI:**
+    - Go to your OAuth 2.0 Client ID settings
+    - Under "Authorized redirect URIs", add `http://localhost` (or `http://localhost:<port>` if using a custom port)
+
 If everything is done right, the last output from the script should be:
 
 > [gmail] Found!
