@@ -2,7 +2,7 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const tokenStore = require("./token-store");
 const fs = require("fs");
-const { authenticate } = require("./libs/oauth2");
+const oauth2 = require("./libs/oauth2");
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
@@ -12,9 +12,10 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
  * given callback function.
  * @param {string | Object} credentials The authorization client credentials.
  * @param {string | Object} token  Token.
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable.
  * @return {google.auth.OAuth2} The OAuth2Client.
  */
-async function authorize(credentials, token) {
+async function authorize(credentials, token, port = 32019) {
   const { client_secret, client_id, redirect_uris } =
     _get_credentials_object(credentials).installed;
   const oAuth2Client = new google.auth.OAuth2(
@@ -27,7 +28,7 @@ async function authorize(credentials, token) {
     oAuth2Client.setCredentials(_get_token_object(token));
     return oAuth2Client;
   } catch (error) {
-    const newOAuth2Client = await get_new_token(oAuth2Client, token);
+    const newOAuth2Client = await get_new_token(oAuth2Client, token, port);
     if (token instanceof Object) {
       tokenStore.store(newOAuth2Client.credentials);
     } else {
@@ -41,10 +42,12 @@ async function authorize(credentials, token) {
  * Get a new token after prompting for user authorization, and then
  * execute the given callback with the authorized OAuth2 client.
  * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
+ * @param {string | Object} token  Token.
+ * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable.
  * @return {Promise<google.auth.OAuth2>} The promise for the authorized client.
  */
-async function get_new_token(oAuth2Client, token) {
-  return authenticate(oAuth2Client, SCOPES, token);
+async function get_new_token(oAuth2Client, token, port = 32019) {
+  return oauth2.authenticate(oAuth2Client, SCOPES, token, port);
 }
 
 /**
