@@ -73,6 +73,12 @@ async function _get_recent_email(credentials, token, options = {}) {
           if (part.parts) {
             parts = parts.concat(part.parts);
           }
+          
+          if (!part.body.data) {
+            // body part could be an attachment of type text/plain or text/html
+            // and the parsing code below will break, hence skipping here
+            continue;
+          }
 
           if (part.mimeType === "text/plain") {
             email_body.text = Buffer.from(part.body.data, "base64").toString(
