@@ -196,7 +196,7 @@ async function check_inbox(
  */
 async function get_messages(credentials, token, options, port = 32019) {
   try {
-    return await _get_recent_email(credentials, token, options, port = 32019);
+    return await _get_recent_email(credentials, token, options, port);
   } catch (err) {
     console.log("[gmail] Error:", err);
   }
@@ -210,7 +210,7 @@ async function get_messages(credentials, token, options, port = 32019) {
  * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable. 
  */
 async function refresh_access_token(credentials, token, port = 32019) {
-  const oAuth2Client = await gmail.authorize(credentials, token, port = 32019);
+  const oAuth2Client = await gmail.authorize(credentials, token, port);
   const refresh_token_result = await oAuth2Client.refreshToken(
     oAuth2Client.credentials.refresh_token
   );

@@ -2,7 +2,7 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const tokenStore = require("./token-store");
 const fs = require("fs");
-const { authenticate } = require("./libs/oauth2");
+const oauth2 = require("./libs/oauth2");
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
@@ -28,7 +28,7 @@ async function authorize(credentials, token, port = 32019) {
     oAuth2Client.setCredentials(_get_token_object(token));
     return oAuth2Client;
   } catch (error) {
-    const newOAuth2Client = await get_new_token(oAuth2Client, token, port = 32019);
+    const newOAuth2Client = await get_new_token(oAuth2Client, token, port);
     if (token instanceof Object) {
       tokenStore.store(newOAuth2Client.credentials);
     } else {
@@ -47,7 +47,7 @@ async function authorize(credentials, token, port = 32019) {
  * @return {Promise<google.auth.OAuth2>} The promise for the authorized client.
  */
 async function get_new_token(oAuth2Client, token, port = 32019) {
-  return authenticate(oAuth2Client, SCOPES, token, port);
+  return oauth2.authenticate(oAuth2Client, SCOPES, token, port);
 }
 
 /**

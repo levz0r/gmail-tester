@@ -32,7 +32,7 @@ if (fs.existsSync(keyPath)) {
 /**
  * Open an http server to accept the oauth callback. In this simple example, the only request to our webserver is to /callback?code=<code>
  */
-async function authenticate(oauth2Client, scopes, tokensFile, port = 80) {
+async function authenticate(oauth2Client, scopes, tokensFile, port = 32019) {
   return new Promise((resolve, reject) => {
     // grab the url that will be used for authorization
     if (!fs.existsSync(tokensFile)) {

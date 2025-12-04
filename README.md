@@ -73,7 +73,8 @@ The process should look like this:
 
 5.  **Add authorized redirect URI:**
     - Go to your OAuth 2.0 Client ID settings
-    - Under "Authorized redirect URIs", add `http://localhost` (or `http://localhost:<port>` if using a custom port)
+    - Under "Authorized redirect URIs", add `http://localhost:32019`
+    - If using a custom port, add `http://localhost:<your-port>` instead
 
 If everything is done right, the last output from the script should be:
 
