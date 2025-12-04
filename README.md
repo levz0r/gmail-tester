@@ -52,7 +52,7 @@ The process should look like this:
 
 # How to get credentials.json?
 
-1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/adwords/api/docs/guides/authentication#create_a_client_id_and_client_secret). Make sure to select `Desktop app` for the application type.
+1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid). Make sure to select `Desktop app` for the application type.
 2.  Once done, go to [https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId](<https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId>) and download the OAuth2 credentials file, as shown in the image below. Make sure to replace `(project-name)` with your project name.
 
     <p align="center">
