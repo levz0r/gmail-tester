@@ -45,4 +45,27 @@ describe("Token-Store", () => {
 
     expect(fs.writeFileSync).toHaveBeenCalledOnceWith('myCustomToken.json', '{"success":true}');
   });
+
+  // Issue #143: token can be an object, not just a path
+  describe('object token support (issue #143)', () => {
+    it('get() returns token object as-is when passed an object', () => {
+      const tokenObject = { access_token: 'abc123', refresh_token: 'xyz789' };
+      spyOn(fs, 'readFileSync');
+
+      const result = tokenStore.get(tokenObject);
+
+      expect(fs.readFileSync).not.toHaveBeenCalled();
+      expect(result).toEqual(tokenObject);
+    });
+
+    it('store() does not write to filesystem when token_path is an object', () => {
+      const tokenObject = { access_token: 'abc123', refresh_token: 'xyz789' };
+      const newToken = { access_token: 'new123', refresh_token: 'xyz789' };
+      spyOn(fs, 'writeFileSync');
+
+      tokenStore.store(newToken, tokenObject);
+
+      expect(fs.writeFileSync).not.toHaveBeenCalled();
+    });
+  });
 });
