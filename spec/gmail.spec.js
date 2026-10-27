@@ -2,7 +2,7 @@ const gmail = require('../gmail');
 const tokenStore = require('../token-store');
 const oauth2 = require('../libs/oauth2');
 
-const { google } = require('googleapis');
+const google = require('@googleapis/gmail');
 
 const fs = require('fs');
 

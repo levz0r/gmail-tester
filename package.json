@@ -1,6 +1,6 @@
 {
   "name": "gmail-tester",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "A simple NodeJS gmail client which checks the inbox for specific message existence",
   "main": "gmail-tester.js",
   "types": "gmail-tester.d.ts",
@@ -18,9 +18,8 @@
   "author": "Lev Gelfenbuim <lev@webtestingwithcypress.com>",
   "license": "MIT",
   "dependencies": {
-    "googleapis": "^109.0.1",
-    "open": "^8.4.0",
-    "server-destroy": "^1.0.1"
+    "@googleapis/gmail": "^22.0.2",
+    "open": "^8.4.0"
   },
   "repository": {
     "type": "git",
@@ -32,5 +31,8 @@
   "homepage": "https://github.com/levz0r/gmail-tester",
   "devDependencies": {
     "jasmine": "^4.0.2"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

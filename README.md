@@ -19,6 +19,14 @@ There are two main functionalities this library provides:<br>
 
 P.S, I have written a [story](https://medium.com/@levz0r/how-to-poll-a-gmail-inbox-in-cypress-io-a4286cfdb888) on medium, how using [Cypress](https://cypress.io), we are testing our user registration process at Tastewise.
 
+# Upgrading to 2.0
+
+- **Node.js 22 or newer is required.** Cypress runs `setupNodeEvents` on your system Node, so check `node -v` there too.
+- The full `googleapis` SDK (~120 MB) was replaced by `@googleapis/gmail` (~1 MB), so installs are much faster. The API is unchanged and no code changes are needed.
+- Existing `credentials.json` and `token.json` files keep working.
+
+If you're stuck on Node 20 or older, pin `gmail-tester@^1.5.0`.
+
 # Usage
 
 1.  Install using `npm`:

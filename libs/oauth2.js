@@ -19,7 +19,6 @@ const path = require("path");
 const http = require("http");
 const url = require("url");
 const opn = require("open");
-const destroyer = require("server-destroy");
 
 /**
  * To use OAuth2 authentication, we need access to a CLIENT_ID, CLIENT_SECRET, AND REDIRECT_URI.  To get these credentials for your application, visit https://console.cloud.google.com/apis/credentials.
@@ -56,12 +55,12 @@ async function authenticate(oauth2Client, scopes, tokensFile, port = 32019) {
         }
         if (qs.get("error")) {
           res.end("Authentication failed. Please return to the console.");
-          server.destroy();
+          closeServer();
           reject(new Error(`OAuth authorization failed: ${qs.get("error")}`));
           return;
         }
         res.end("Authentication successful! Please return to the console.");
-        server.destroy();
+        closeServer();
         try {
           const { tokens } = await oauth2Client.getToken({
             code: qs.get("code"),
@@ -80,7 +79,10 @@ async function authenticate(oauth2Client, scopes, tokensFile, port = 32019) {
         opn(authorizeUrl, { wait: false }).then(cp => cp.unref());
       });
     server.on("error", reject);
-    destroyer(server);
+    const closeServer = () => {
+      server.close();
+      server.closeAllConnections();
+    };
   });
 }
 
