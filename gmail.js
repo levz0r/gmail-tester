@@ -1,5 +1,5 @@
 const readline = require("readline");
-const { google } = require("googleapis");
+const google = require("@googleapis/gmail");
 const tokenStore = require("./token-store");
 const fs = require("fs");
 const oauth2 = require("./libs/oauth2");
@@ -214,7 +214,7 @@ async function get_email_attachments(oauth2Client, gmail_email) {
 }
 
 function _gmail_client(oAuth2Client) {
-  return google.gmail({ version: "v1", oAuth2Client });
+  return google.gmail({ version: "v1", auth: oAuth2Client });
 }
 
 function _get_credentials_object(credentials) {
