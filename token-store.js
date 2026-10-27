@@ -33,10 +33,10 @@ function store(token, token_path) {
   if (typeof token_path === 'object' && token_path !== null) {
     return;
   }
-  fs.writeFileSync(
-    token_path || path.resolve(__dirname, TOKEN_PATH),
-    JSON.stringify(token)
-  );
+  const file = token_path || path.resolve(__dirname, TOKEN_PATH);
+  // Owner-only: the file holds a refresh token. mode only applies on create, so chmod existing files too
+  fs.writeFileSync(file, JSON.stringify(token), { mode: 0o600 });
+  fs.chmodSync(file, 0o600);
 }
 
 module.exports = {
