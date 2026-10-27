@@ -36,51 +36,11 @@ node <node_modules>/gmail-tester/init.js <path-to-credentials.json> <path-to-tok
 
 `<path-to-credentials.json>` Is the path to OAuth2 Authentication file.<br/>
 `<path-to-token.json>` Is the path to OAuth2 token. If it doesn't exist, the script will create it.<br/>
-The script will prompt you to go to google.com to activate a token.
-Go to the given link, and select the account for `<target-email>`. Grant permission to view your email messages and settings. At the end of the process you should see the token:
+`[port]` Optional. The local port for the OAuth redirect. Default: `32019`.
 
-<p align="center">
-  <img src="https://i.ibb.co/sJm97H1/copy-token.png" alt="copy-token" border="0">
-</p>
+The script opens your browser on Google's consent page (the link is also printed in the terminal). Select the account for `<target-email>` and grant permission to view your email messages. Google then redirects to `http://localhost:32019`, the script saves the token and exits. There is no code to copy and paste.
 
-Hit the copy button and paste it to `init.js` script.
-The process should look like this:
-
-<p align="center">
-  <img src="https://i.ibb.co/k94bkzB/run-script.png" alt="Run script">
-</p>
-
-# How to get credentials.json?
-
-1.  Follow the instructions to [Create a client ID and client secret](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid). Make sure to select `Desktop app` for the application type.
-2.  Once done, go to [https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId](<https://console.cloud.google.com/apis/credentials?project=(project-name)&folder&organizationId>) and download the OAuth2 credentials file, as shown in the image below. Make sure to replace `(project-name)` with your project name.
-
-    <p align="center">
-      <img src="https://i.ibb.co/z5FL6YK/get-credentials-json.png" alt="Get credentials.json">
-    </p>
-
-    The `credentials.json` file should look like this:<p align="center">
-    <img src="https://i.ibb.co/1stgn28/credentials.png" alt="Credentials file">
-
-    </p>
-
-3.  Make sure the [Gmail API is activated](https://console.developers.google.com/apis/library/gmail.googleapis.com) for your account.
-
-4.  **Configure OAuth consent screen:**
-    - Go to [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent)
-    - If your app is in **"Testing"** mode (not published), you must add the Gmail accounts you want to test as **Test users**
-    - Note: Refresh tokens for apps in testing mode expire after 7 days. To avoid this, publish your app (verification not required for personal use)
-
-5.  **Add authorized redirect URI:**
-    - Go to your OAuth 2.0 Client ID settings
-    - Under "Authorized redirect URIs", add `http://localhost:32019`
-    - If using a custom port, add `http://localhost:<your-port>` instead
-
-If everything is done right, the last output from the script should be:
-
-> [gmail] Found!
-
-Congratulations! `gmail-tester` is ready to use.
+If the script keeps waiting after you grant permission, the redirect didn't reach it. Check that `http://localhost:<port>` is an authorized redirect URI for your OAuth client, and run `init.js` on the same machine as the browser.
 
 ⛔️ **Never share or commit `credentials.json` nor `token.json`!!! Whoever has it will have full access to your inbox!**
 
@@ -102,7 +62,8 @@ Congratulations! `gmail-tester` is ready to use.
 - `label`: String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
 
 **Returns:**
-An array of `email` objects with the following fields:<br>
+A promise of an array of `email` objects (empty if nothing matches). It rejects if Gmail can't be reached or authorization fails. Before 1.5.0 it resolved to `undefined` in that case.<br>
+The `email` objects have the following fields:<br>
 
 ```javascript
 [
@@ -135,7 +96,7 @@ _Some senders will send you `text/html` content, the others will send you `plain
 - `before`: Date. Filter messages received _before_ the specified date.
 - `after`: Date. Filter messages received _after_ the specified date.
 - `wait_time_sec`: Integer. Interval between inbox checks (in seconds). _Default: 30 seconds_.
-- `max_wait_time_sec`: Integer. Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 60 seconds_.
+- `max_wait_time_sec`: Integer. Maximum wait time (in seconds). When reached and the email was not found, the script exits. _Default: 30 seconds_.
 - `label`: String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
 
 
