@@ -16,8 +16,9 @@ const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
  * @return {google.auth.OAuth2} The OAuth2Client.
  */
 async function authorize(credentials, token, port = 32019) {
-  const { client_secret, client_id, redirect_uris } =
-    _get_credentials_object(credentials).installed;
+  const { client_secret, client_id, redirect_uris } = _get_client_keys(
+    _get_credentials_object(credentials)
+  );
   const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
@@ -222,6 +223,17 @@ function _get_credentials_object(credentials) {
     return credentials;
   }
   return JSON.parse(fs.readFileSync(credentials));
+}
+
+function _get_client_keys(credentials) {
+  // Desktop app clients are under "installed", Web application clients under "web"
+  const keys = credentials.installed || credentials.web;
+  if (!keys) {
+    throw new Error(
+      'Invalid credentials: expected an "installed" (Desktop app) or "web" (Web application) OAuth client'
+    );
+  }
+  return keys;
 }
 
 function _get_token_object(token) {

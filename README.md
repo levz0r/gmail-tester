@@ -50,14 +50,31 @@ The script opens your browser on Google's consent page (the link is also printed
 
 If the script keeps waiting after you grant permission, the redirect didn't reach it. Check that `http://localhost:<port>` is an authorized redirect URI for your OAuth client, and run `init.js` on the same machine as the browser.
 
+When it's done, the script prints:
+
+> [gmail] Token ready at <path-to-token.json>. You're all set!
+
+# How to get credentials.json?
+
+1.  In the [Google Cloud Console](https://console.cloud.google.com/), create a project or select an existing one.
+2.  [Enable the Gmail API](https://console.cloud.google.com/apis/library/gmail.googleapis.com) for the project.
+3.  **Configure the consent screen** in [Google Auth Platform](https://console.cloud.google.com/auth/overview). Choose **External** for a personal Gmail account.
+    - While the app is in **Testing** mode, only accounts listed under **Audience → Test users** can sign in. Add the Gmail accounts you want to test with.
+    - Refresh tokens for apps in Testing mode expire after 7 days. For long-lived CI tokens, publish the app (verification isn't required for personal use).
+4.  **Create an OAuth client** under [Clients](https://console.cloud.google.com/auth/clients):
+    - **Desktop app** (recommended): works as-is. Google allows any `http://localhost` port for Desktop clients.
+    - **Web application** also works, but you must add `http://localhost:32019` (or `http://localhost:<your-port>`) under **Authorized redirect URIs**.
+5.  Download the client's JSON and save it as `credentials.json`. Desktop clients have an `installed` key at the top level and Web clients have `web`. Both are supported.
+
 ⛔️ **Never share or commit `credentials.json` nor `token.json`!!! Whoever has it will have full access to your inbox!**
 
 # API
 
-### `get_messages(credentials, token, options)`
+### `get_messages(credentials, token, options, port = 32019)`
 
 `credentials`: Path to credentials JSON file or JSON Object.<br>
 `token`: Path to OAuth2 token file or JSON Object.<br>
+`port`: Optional. Local port for the OAuth redirect if a new token is needed. Default: `32019`.<br>
 `options`: <br>
 
 - `from`: String. Filter on the email address of the receiver.
@@ -90,10 +107,11 @@ The `email` objects have the following fields:<br>
 
 _Some senders will send you `text/html` content, the others will send you `plain/text`, and some will send you both. Make sure you are looking for the content in the right body field._
 
-### `check_inbox(credentials, token, options = {})`
+### `check_inbox(credentials, token, options = {}, port = 32019)`
 
 `credentials`: Path to credentials JSON file or JSON Object.<br>
 `token`: Path to OAuth2 token file or JSON Object.<br>
+`port`: Optional. Local port for the OAuth redirect if a new token is needed. Default: `32019`.<br>
 `options`: <br>
 
 - `from`: String. Filter on the email address of the receiver.
@@ -128,7 +146,7 @@ An array of `email` objects with the following fields:<br>
 
 In addition, verbose messages will be written to console.
 
-### `refresh_access_token(credentials, token)`
+### `refresh_access_token(credentials, token, port = 32019)`
 
 `credentials`: Path to credentials JSON file or JSON Object.<br>
 `token`: Path to OAuth2 token file or JSON Object.<br>
