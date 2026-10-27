@@ -30,20 +30,24 @@ describe("Token-Store", () => {
 
   it('saves token in default path storage', () => {
     spyOn(fs, 'writeFileSync').and.callFake(() => {});
+    spyOn(fs, 'chmodSync').and.callFake(() => {});
     spyOn(path, 'resolve').and.returnValue('myCustomToken.json');
 
     tokenStore.store({success: true}, null);
 
-    expect(fs.writeFileSync).toHaveBeenCalledOnceWith('myCustomToken.json', '{"success":true}');
+    expect(fs.writeFileSync).toHaveBeenCalledOnceWith('myCustomToken.json', '{"success":true}', { mode: 0o600 });
+    expect(fs.chmodSync).toHaveBeenCalledOnceWith('myCustomToken.json', 0o600);
     expect(path.resolve).toHaveBeenCalledOnceWith(jasmine.any(String), 'token.json');
   });
 
   it('saves token in storage', () => {
-    spyOn(fs, 'writeFileSync').and.callFake(() => {})
+    spyOn(fs, 'writeFileSync').and.callFake(() => {});
+    spyOn(fs, 'chmodSync').and.callFake(() => {});
 
     tokenStore.store({success: true}, 'myCustomToken.json');
 
-    expect(fs.writeFileSync).toHaveBeenCalledOnceWith('myCustomToken.json', '{"success":true}');
+    expect(fs.writeFileSync).toHaveBeenCalledOnceWith('myCustomToken.json', '{"success":true}', { mode: 0o600 });
+    expect(fs.chmodSync).toHaveBeenCalledOnceWith('myCustomToken.json', 0o600);
   });
 
   // Issue #143: token can be an object, not just a path

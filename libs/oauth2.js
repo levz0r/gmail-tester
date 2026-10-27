@@ -13,6 +13,7 @@
 
 "use strict";
 
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
@@ -30,46 +31,56 @@ if (fs.existsSync(keyPath)) {
 }
 
 /**
- * Open an http server to accept the oauth callback. In this simple example, the only request to our webserver is to /callback?code=<code>
+ * Open an http server to accept the oauth callback. In this simple example, the only request to our webserver is to /?code=<code>&state=<state>
  */
 async function authenticate(oauth2Client, scopes, tokensFile, port = 32019) {
   return new Promise((resolve, reject) => {
-    // grab the url that will be used for authorization
-    if (!fs.existsSync(tokensFile)) {
-      const authorizeUrl = oauth2Client.generateAuthUrl({
-        access_type: "offline",
-        scope: scopes.join(" "),
-        redirect_uri: `http://localhost:${port}`
+    const redirectUri = `http://localhost:${port}`;
+    // Random state ties the callback to this flow, so a forged request can't inject someone else's code
+    const state = crypto.randomBytes(32).toString("hex");
+    const authorizeUrl = oauth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: scopes.join(" "),
+      redirect_uri: redirectUri,
+      state
+    });
+    console.log(`Authorize this app by visiting this url: ${authorizeUrl}`);
+    const server = http
+      .createServer(async (req, res) => {
+        const qs = new url.URL(req.url, redirectUri).searchParams;
+        if (qs.get("state") !== state) {
+          // Ignore unrelated requests (favicon, stray or forged callbacks) and keep waiting
+          res.statusCode = 400;
+          res.end("Invalid OAuth state.");
+          return;
+        }
+        if (qs.get("error")) {
+          res.end("Authentication failed. Please return to the console.");
+          server.destroy();
+          reject(new Error(`OAuth authorization failed: ${qs.get("error")}`));
+          return;
+        }
+        res.end("Authentication successful! Please return to the console.");
+        server.destroy();
+        try {
+          const { tokens } = await oauth2Client.getToken({
+            code: qs.get("code"),
+            redirect_uri: redirectUri
+          });
+          // The caller persists the tokens via token-store
+          oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
+          resolve(oauth2Client);
+        } catch (e) {
+          reject(e);
+        }
+      })
+      // Loopback only: don't expose the callback to the network
+      .listen(port, "localhost", () => {
+        // open the browser to the authorize url to start the workflow
+        opn(authorizeUrl, { wait: false }).then(cp => cp.unref());
       });
-      console.log(`Authorize this app by visiting this url: ${authorizeUrl}`);
-      const server = http
-        .createServer(async (req, res) => {
-          try {
-            if (req.url.indexOf("/") > -1) {
-              const qs = new url.URL(req.url, `http://localhost:${port}`).searchParams;
-              res.end("Authentication successful! Please return to the console.");
-              server.destroy();
-              const { tokens } = await oauth2Client.getToken({
-                code: qs.get("code"),
-                redirect_uri: `http://localhost:${port}`
-              });
-              fs.writeFileSync(tokensFile, JSON.stringify(tokens, null, 2));
-              oauth2Client.credentials = tokens; // eslint-disable-line require-atomic-updates
-              resolve(oauth2Client);
-            }
-          } catch (e) {
-            reject(e);
-          }
-        })
-        .listen(port, () => {
-          // open the browser to the authorize url to start the workflow
-          opn(authorizeUrl, { wait: false }).then(cp => cp.unref());
-        });
-      destroyer(server);
-    } else {
-      oauth2Client.credentials = tokensFile; // eslint-disable-line require-atomic-updates
-      resolve(oauth2Client);
-    }
+    server.on("error", reject);
+    destroyer(server);
   });
 }
 
