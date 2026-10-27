@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+github.com:levz0r/gmail-tester.git"
+    "url": "git+https://github.com/levz0r/gmail-tester.git"
   },
   "bugs": {
     "url": "https://github.com/levz0r/gmail-tester/issues"
