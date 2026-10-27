@@ -1,6 +1,13 @@
 const gmail = require("./gmail");
 const tokenStore = require("./token-store")
 
+const CHECK_INBOX_DEFAULTS = {
+  wait_time_sec: 30,
+  max_wait_time_sec: 30,
+  include_body: false,
+  label: "INBOX"
+};
+
 function _get_header(name, headers) {
   const found = headers.find(h => h.name === name);
   return found && found.value;
@@ -153,31 +160,27 @@ async function __check_inbox(credentials, token, options = {}, port = 32019) {
  * @param {Date} [options.before] - Date. Filter messages received _after_ the specified date.
  * @param {Date} [options.after] - Date. Filter messages received _before_ the specified date.
  * @param {number} [options.wait_time_sec] - Interval between inbox checks (in seconds). Default: 30 seconds.
- * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 60 seconds.
+ * @param {number} [options.max_wait_time_sec] - Maximum wait time (in seconds). When reached and the email was not found, the script exits. Default: 30 seconds.
  * @param {string} [options.label] - String. The default label is 'INBOX', but can be changed to 'SPAM', 'TRASH' or a custom label. For a full list of built-in labels, see https://developers.google.com/gmail/api/guides/labels?hl=en
  * @param {number} [port] - Optional port option, in case the default port (32019) is unavailable.
  */
-async function check_inbox(
-  credentials,
-  token,
-  options = {
-    subject: undefined,
-    from: undefined,
-    to: undefined,
-    wait_time_sec: 30,
-    max_wait_time_sec: 30,
-    include_body: false,
-    label: "INBOX"
-  },
-  port = 32019
-) {
+async function check_inbox(credentials, token, options = {}, port = 32019) {
   if (typeof options !== "object") {
     console.error(
       "[gmail-tester] This functionality is obsolete! Please pass all params of check_inbox() in options object."
     );
     process.exit(1);
   }
-  return __check_inbox(credentials, token, options, port);
+  // Fill in any option the caller left out; a missing wait_time_sec/max_wait_time_sec used to poll forever (#127)
+  const defined_options = Object.fromEntries(
+    Object.entries(options || {}).filter(([, value]) => value !== undefined)
+  );
+  return __check_inbox(
+    credentials,
+    token,
+    { ...CHECK_INBOX_DEFAULTS, ...defined_options },
+    port
+  );
 }
 
 /**
@@ -199,6 +202,7 @@ async function get_messages(credentials, token, options, port = 32019) {
     return await _get_recent_email(credentials, token, options, port);
   } catch (err) {
     console.log("[gmail] Error:", err);
+    throw err;
   }
 }
 
