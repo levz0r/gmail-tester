@@ -40,6 +40,20 @@ describe('Gmail', () => {
     expect(oAuth2Spy.setCredentials).toHaveBeenCalledOnceWith({myObj: true});
   });
 
+  it('authorize accepts Web application credentials', () => {
+    const cred_obj = {"web":{"client_secret":"web_secret","client_id":"web_id","redirect_uris":["http://localhost:32019"]}};
+    spyOn(google.auth, 'OAuth2').and.returnValue(jasmine.createSpyObj('oAuth2', ['setCredentials']));
+
+    gmail.authorize(cred_obj, {myObj: true});
+
+    expect(google.auth.OAuth2).toHaveBeenCalledOnceWith('web_id', 'web_secret', 'http://localhost:32019');
+  });
+
+  it('authorize rejects credentials without an installed or web client', async () => {
+    await expectAsync(gmail.authorize({"other": {}}, {myObj: true}))
+      .toBeRejectedWithError(/expected an "installed" \(Desktop app\) or "web"/);
+  });
+
   it('authorize passes custom port to authenticate when getting new token', async () => {
     const cred_obj = {"installed":{"client_secret":"client_secret","client_id":"client_id","redirect_uris":["redirect_uris"]}};
 

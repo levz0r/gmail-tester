@@ -43,32 +43,38 @@ declare module "gmail-tester" {
     include_attachments?: boolean;
   }
 
-  export interface Credentials {
-    installed : {
-      client_id: string,
-      project_id: string,
-      auth_uri: string,
-      token_uri: string,
-      auth_provider_x509_cert_url: string,
-      client_secret: string,
-      redirect_uris: string[]
-    }
+  export interface OAuthClientKeys {
+    client_id: string,
+    project_id: string,
+    auth_uri: string,
+    token_uri: string,
+    auth_provider_x509_cert_url: string,
+    client_secret: string,
+    redirect_uris: string[]
   }
+
+  /** A Desktop app client ("installed") or a Web application client ("web"). */
+  export type Credentials =
+    | { installed: OAuthClientKeys }
+    | { web: OAuthClientKeys };
 
   export function check_inbox(
     credentials: string | Credentials,
     token: string | Record<string, unknown>,
-    options: CheckInboxOptions
+    options: CheckInboxOptions,
+    port?: number
   ): Promise<Email[]>;
 
   export function get_messages(
     credentials: string | Credentials,
     token: string | Record<string, unknown>,
-    options: GetMessagesOptions
+    options: GetMessagesOptions,
+    port?: number
   ): Promise<Email[]>;
 
   export function refresh_access_token(
     credentials: string | Credentials,
     token: string | Record<string, unknown>,
+    port?: number
   ): Promise<void>;
 }
