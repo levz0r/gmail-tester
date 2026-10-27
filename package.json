@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@googleapis/gmail": "^22.0.2",
-    "open": "^8.4.0"
+    "open": "^11.0.4"
   },
   "repository": {
     "type": "git",
