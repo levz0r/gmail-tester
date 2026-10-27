@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/levz0r/gmail-tester",
   "devDependencies": {
-    "jasmine": "^4.0.2"
+    "jasmine": "^7.0.0"
   },
   "engines": {
     "node": ">=22"
